@@ -1,0 +1,22 @@
+# Что НЕ попадает в публикуемый .vsix.
+# Дублирует приватность LLM-файлов: они не в репе И не в пакете.
+
+.vscode/**
+.vscode-test/**
+.git/**
+.gitignore
+.gitattributes
+
+CLAUDE.md
+.claude/**
+contexts/**
+**/*.local.json
+
+# Dev-конфиги и исходные карты
+jsconfig.json
+**/tsconfig.json
+**/.eslintrc*
+**/*.map
+
+# node_modules не нужен: у расширения нет runtime-зависимостей.
+node_modules/**

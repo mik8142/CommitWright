@@ -1,0 +1,82 @@
+{
+  "name": "commitwright",
+  "displayName": "CommitWright",
+  "description": "Generate Git commit messages from your staged changes using your local Claude CLI.",
+  "version": "0.0.1",
+  "publisher": "mik8142",
+  "author": {
+    "name": "mik8142"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mik8142/CommitWright.git"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "commit",
+    "commit message",
+    "claude",
+    "ai",
+    "cli"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "commitwright.generate",
+        "title": "Generate Commit Message",
+        "category": "CommitWright",
+        "icon": "$(sparkle)"
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "commitwright.generate",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "CommitWright",
+      "properties": {
+        "commitwright.cliPath": {
+          "type": "string",
+          "default": "claude",
+          "description": "Path to the CLI executable. Use an absolute path if it is not on PATH (common on Windows, e.g. C:\\\\Users\\\\you\\\\...\\\\claude.exe)."
+        },
+        "commitwright.model": {
+          "type": "string",
+          "default": "",
+          "description": "Optional model override passed to the CLI. Leave empty to use the CLI default."
+        },
+        "commitwright.diffSource": {
+          "type": "string",
+          "enum": [
+            "staged",
+            "all"
+          ],
+          "default": "staged",
+          "description": "Which changes to feed to the generator: only staged ('git diff --cached') or all tracked changes."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0"
+  }
+}

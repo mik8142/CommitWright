@@ -1,0 +1,17 @@
+# --- Dependencies & build output ---
+node_modules/
+out/
+dist/
+*.vsix
+.vscode-test/
+
+# В репе должен быть только код. Всё, что связано с ассистентом и контекстом, — локальное.
+CLAUDE.md
+.claude/
+contexts/
+*.local.json
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.log
