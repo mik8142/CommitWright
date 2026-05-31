@@ -1,5 +1,7 @@
 import { spawn } from 'node:child_process';
 import * as os from 'node:os';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { CommitWrightConfig } from './config';
 import { CommitWrightError } from './errors';
 
@@ -55,6 +57,41 @@ export function buildInvocation(cfg: CommitWrightConfig): CliInvocation {
   return { command: cfg.cliPath, args };
 }
 
+// Существует ли исполняемый файл по этому абсолютному пути.
+function isFile(p: string): boolean {
+  try {
+    return fs.statSync(p).isFile();
+  } catch {
+    return false;
+  }
+}
+
+// Резолв команды в существующий файл (или null, если не найдена). Делаем сами, ДО запуска:
+// при shell:true несуществующий бинарь обрабатывает сам шелл (cmd.exe) — он не кидает ENOENT,
+// а возвращает ненулевой код и пишет локализованную (на Windows — CP866) ошибку. Префлайт
+// даёт чистую категорию cli-not-found и заодно не пускает шелл печатать кракозябры.
+function resolveExecutable(command: string): string | null {
+  const isWin = process.platform === 'win32';
+  // На Windows к голому имени пробуем расширения из PATHEXT (claude -> claude.exe/.cmd/.bat).
+  const exts = isWin
+    ? (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
+    : [''];
+  const withExts = (base: string): string[] => [base, ...exts.map((e) => base + e)];
+
+  // Путь с разделителем/абсолютный — проверяем как есть; иначе ищем по каждому каталогу PATH.
+  if (path.isAbsolute(command) || command.includes('/') || command.includes('\\')) {
+    return withExts(command).find(isFile) ?? null;
+  }
+  const dirs = (process.env.PATH ?? '').split(path.delimiter).filter(Boolean);
+  for (const dir of dirs) {
+    const hit = withExts(path.join(dir, command)).find(isFile);
+    if (hit) {
+      return hit;
+    }
+  }
+  return null;
+}
+
 // Запуск CLI: промпт -> stdin, сбор stdout, таймаут, классификация ошибок.
 // Windows: бинарь может быть .exe/.cmd, поэтому shell:true (иначе .cmd не запустится);
 // аргументы фиксированы нами (не пользовательский ввод в shell) — инъекции нет.
@@ -64,6 +101,14 @@ export function runCli(
   timeoutMs: number,
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
+    // Префлайт: бинарь не найден -> чистая категория, без запуска шелла (см. resolveExecutable).
+    if (!resolveExecutable(invocation.command)) {
+      reject(
+        new CommitWrightError('cli-not-found', `Executable not found: ${invocation.command}`),
+      );
+      return;
+    }
+
     const child = spawn(invocation.command, invocation.args, {
       cwd: os.tmpdir(), // нейтральный cwd: не подхватывать CLAUDE.md репозитория
       env: invocation.env ?? process.env,
@@ -71,8 +116,8 @@ export function runCli(
       shell: process.platform === 'win32',
     });
 
-    let stdout = '';
-    let stderr = '';
+    const stdoutChunks: Buffer[] = [];
+    const stderrChunks: Buffer[] = [];
     let timedOut = false;
 
     const timer = setTimeout(() => {
@@ -89,12 +134,8 @@ export function runCli(
       }
     });
 
-    child.stdout.on('data', (chunk) => {
-      stdout += chunk.toString();
-    });
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString();
-    });
+    child.stdout.on('data', (chunk: Buffer) => stdoutChunks.push(chunk));
+    child.stderr.on('data', (chunk: Buffer) => stderrChunks.push(chunk));
 
     child.on('close', (code) => {
       clearTimeout(timer);
@@ -102,8 +143,11 @@ export function runCli(
         reject(new CommitWrightError('timeout', `Timed out after ${timeoutMs} ms`));
         return;
       }
+      const stdout = decodeOutput(Buffer.concat(stdoutChunks));
+      const stderr = decodeOutput(Buffer.concat(stderrChunks));
       if (code !== 0) {
-        reject(classifyExit(code, stderr));
+        // claude при ошибке пишет диагностику то в stderr, то в stdout — отдаём оба.
+        reject(classifyExit(code, stdout, stderr));
         return;
       }
       const message = stdout.trim();
@@ -120,15 +164,38 @@ export function runCli(
   });
 }
 
-// Классификация ненулевого выхода. Точные сигнатуры auth/limit ещё не выверены опытно
-// (роадмап: определить, когда столкнёмся) — пока грубая эвристика по stderr + общий случай.
-function classifyExit(code: number | null, stderr: string): CommitWrightError {
-  const text = stderr.toLowerCase();
-  if (/unauthor|not logged in|authentication|login/.test(text)) {
-    return new CommitWrightError('auth', stderr || 'Authentication error');
+// Декод вывода процесса. claude печатает UTF-8; но если в выводе оказался текст от cmd.exe
+// на русской Windows (CP866), UTF-8-декод даёт «кракозябры» (U+FFFD). В этом случае пробуем
+// ibm866 (= CP866) как fallback. WHATWG-метку 'ibm866' Node TextDecoder понимает.
+function decodeOutput(buf: Buffer): string {
+  const utf8 = buf.toString('utf8');
+  if (process.platform === 'win32' && utf8.includes('�')) {
+    try {
+      return new TextDecoder('ibm866').decode(buf);
+    } catch {
+      // ibm866 недоступна в этой сборке Node — оставляем UTF-8.
+    }
   }
-  if (/rate limit|usage limit|quota|too many requests/.test(text)) {
-    return new CommitWrightError('limit', stderr || 'Usage limit reached');
+  return utf8;
+}
+
+// Классификация ненулевого выхода. claude при ошибке (например невыполненном /login) пишет
+// диагностику то в stderr, то в stdout — поэтому смотрим оба потока: и для матчинга категории,
+// и для текста в тосте (принцип «никаких молчаливых ошибок»). Сигнатуры эвристические;
+// auth/limit уточняем по живому выводу.
+function classifyExit(code: number | null, stdout: string, stderr: string): CommitWrightError {
+  const diagnostic = [stderr, stdout]
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join('\n');
+  const text = diagnostic.toLowerCase();
+  const authPattern =
+    /unauthor|not logged in|not authenticated|please.*login|\/login|invalid api key|authentication/;
+  if (authPattern.test(text)) {
+    return new CommitWrightError('auth', diagnostic || 'Authentication error');
   }
-  return new CommitWrightError('nonzero-exit', stderr || `CLI exited with code ${code}`);
+  if (/rate limit|usage limit|quota|too many requests|overloaded/.test(text)) {
+    return new CommitWrightError('limit', diagnostic || 'Usage limit reached');
+  }
+  return new CommitWrightError('nonzero-exit', diagnostic || `CLI exited with code ${code}`);
 }

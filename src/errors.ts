@@ -26,6 +26,8 @@ export class CommitWrightError extends Error {
 
 // Документ по установке CLI — показываем при cli-not-found.
 const INSTALL_DOC_URL = 'https://docs.claude.com/en/docs/claude-code/overview';
+// Документ про вход — показываем при auth (не выполнен `claude /login`).
+const SIGNIN_DOC_URL = 'https://docs.claude.com/en/docs/claude-code/setup';
 
 // Человекочитаемый текст по категории. detail (например stderr) добавляем отдельной строкой.
 function describe(kind: CommitWrightErrorKind): string {
@@ -58,10 +60,13 @@ export async function showError(err: unknown): Promise<void> {
 
   const openSettings = t('Open Settings');
   const howToInstall = t('How to install');
+  const howToSignIn = t('How to sign in');
 
   let actions: string[] = [];
   if (kind === 'cli-not-found') {
     actions = [openSettings, howToInstall];
+  } else if (kind === 'auth') {
+    actions = [howToSignIn];
   } else if (kind === 'timeout') {
     actions = [openSettings];
   }
@@ -71,6 +76,8 @@ export async function showError(err: unknown): Promise<void> {
     void vscode.commands.executeCommand('workbench.action.openSettings', 'commitwright');
   } else if (choice === howToInstall) {
     void vscode.env.openExternal(vscode.Uri.parse(INSTALL_DOC_URL));
+  } else if (choice === howToSignIn) {
+    void vscode.env.openExternal(vscode.Uri.parse(SIGNIN_DOC_URL));
   }
 }
 
