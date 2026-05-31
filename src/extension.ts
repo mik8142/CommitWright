@@ -5,6 +5,7 @@ import { buildPrompt } from './prompt';
 import { buildInvocation, runCli } from './cli';
 import { showError } from './errors';
 import { registerEntrypoints } from './entrypoints';
+import { registerSelectLanguageCommand } from './commands';
 import { t } from './i18n';
 
 // CommitWright — генерация Git commit-сообщения из staged-изменений через локальный CLI.
@@ -13,6 +14,8 @@ import { t } from './i18n';
 export function activate(context: vscode.ExtensionContext): void {
   // Выставить context-keys точек входа (позиция/видимость) сразу при активации.
   registerEntrypoints(context);
+  // Команда выбора языка коммитов (QuickPick + свободный ввод).
+  registerSelectLanguageCommand(context);
 
   const disposable = vscode.commands.registerCommand('commitwright.generate', async () => {
     try {

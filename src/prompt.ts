@@ -39,10 +39,40 @@ const LOCALE_TO_LANGUAGE: Record<string, string> = {
   'zh-tw': 'Chinese (Traditional)',
 };
 
-// Разрешение языка: 'auto' -> по vscode.env.language; иначе — строка как есть (свобода).
+// Частые языки для пикера команды selectLanguage. Это лишь подсказки — пользователь
+// всегда может ввести своё значение (хоть 'Elvish'), поэтому список не обязан быть полным.
+//   native  — как показываем в пикере (название на самом языке);
+//   english — что уходит в промпт ({$lang}) и хранится в настройке (стабильное значение).
+// Разделение ролей: видим родное название, в промпт идёт чистый английский. Поиск в пикере
+// матчит по обоим (native через label, english через description + matchOnDescription).
+export interface CommonLanguage {
+  native: string;
+  english: string;
+}
+
+export const COMMON_LANGUAGES: readonly CommonLanguage[] = [
+  { native: 'English', english: 'English' },
+  { native: 'Русский', english: 'Russian' },
+  { native: 'Deutsch', english: 'German' },
+  { native: 'Français', english: 'French' },
+  { native: 'Español', english: 'Spanish' },
+  { native: 'Italiano', english: 'Italian' },
+  { native: 'Português', english: 'Portuguese' },
+  { native: 'Polski', english: 'Polish' },
+  { native: 'Türkçe', english: 'Turkish' },
+  { native: '日本語', english: 'Japanese' },
+  { native: '한국어', english: 'Korean' },
+  { native: '简体中文', english: 'Chinese (Simplified)' },
+  { native: '繁體中文', english: 'Chinese (Traditional)' },
+];
+
+// Разрешение языка: 'auto' ИЛИ пустая строка -> по vscode.env.language; иначе строка как есть.
+// Пустую трактуем как auto осознанно: пользователь может очистить поле настройки, ожидая
+// «вернуть по умолчанию» — это и есть auto, а не «писать на пустом языке».
 export function resolveLanguage(commitLanguage: string, locale: string): string {
-  if (commitLanguage.trim().toLowerCase() !== 'auto') {
-    return commitLanguage.trim();
+  const trimmed = commitLanguage.trim();
+  if (trimmed !== '' && trimmed.toLowerCase() !== 'auto') {
+    return trimmed;
   }
   const key = locale.toLowerCase();
   return LOCALE_TO_LANGUAGE[key] ?? LOCALE_TO_LANGUAGE[key.split('-')[0]] ?? 'English';

@@ -38,6 +38,11 @@
         "title": "Generate Commit Message",
         "category": "CommitWright",
         "icon": "$(chat-sparkle)"
+      },
+      {
+        "command": "commitwright.selectLanguage",
+        "title": "Select Commit Language",
+        "category": "CommitWright"
       }
     ],
     "menus": {
@@ -100,7 +105,7 @@
         "commitwright.commitLanguage": {
           "type": "string",
           "default": "auto",
-          "description": "Language of the generated commit message. 'auto' follows the VS Code display language; or type any language name (e.g. 'Russian', 'German', or even 'Elvish'). Tip: run the 'CommitWright: Select Commit Language' command for a picker."
+          "markdownDescription": "Language of the generated commit message. [▸ Pick from list](command:commitwright.selectLanguage) — the easiest way to set this. You can also type any language name here (e.g. `Russian`, `German`, or even `Elvish`). Use `auto` — or leave this empty — to follow the VS Code display language."
         },
         "commitwright.extraInstructions": {
           "type": "string",
