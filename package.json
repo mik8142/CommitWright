@@ -27,23 +27,30 @@
     "ai",
     "cli"
   ],
-  "activationEvents": [],
-  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "commitwright.generate",
         "title": "Generate Commit Message",
         "category": "CommitWright",
-        "icon": "$(sparkle)"
+        "icon": "$(chat-sparkle)"
       }
     ],
     "menus": {
       "scm/title": [
         {
           "command": "commitwright.generate",
-          "group": "navigation",
-          "when": "scmProvider == git"
+          "group": "navigation@-100",
+          "when": "scmProvider == git && commitwright.pos.scmTitle == 'left'"
+        },
+        {
+          "command": "commitwright.generate",
+          "group": "navigation@100",
+          "when": "scmProvider == git && commitwright.pos.scmTitle == 'right'"
         }
       ]
     },
@@ -68,15 +75,40 @@
           ],
           "default": "staged",
           "description": "Which changes to feed to the generator: only staged ('git diff --cached') or all tracked changes."
+        },
+        "commitwright.position.scmTitle": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right"
+          ],
+          "enumDescriptions": [
+            "Pin the button to the left edge of the Source Control title actions.",
+            "Pin the button to the right edge, just before the '...' overflow menu."
+          ],
+          "default": "right",
+          "description": "Where to place the CommitWright button among the built-in Source Control title actions."
         }
       }
     }
   },
   "scripts": {
-    "lint": "eslint .",
-    "package": "vsce package"
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production"
   },
   "devDependencies": {
-    "@types/vscode": "^1.90.0"
+    "@types/node": "^20.19.41",
+    "@types/vscode": "~1.90.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^10.4.1",
+    "npm-run-all2": "^9.0.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0"
   }
 }

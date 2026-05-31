@@ -1,5 +1,4 @@
-# Что НЕ попадает в публикуемый .vsix.
-# Дублирует приватность LLM-файлов: они не в репе И не в пакете.
+# Что НЕ попадает в публикуемый .vsix. В пакет уходит только собранный dist/.
 
 .vscode/**
 .vscode-test/**
@@ -7,16 +6,18 @@
 .gitignore
 .gitattributes
 
+# Приватная обвязка — не в репозитории И не в пакете.
 CLAUDE.md
 .claude/**
 contexts/**
 **/*.local.json
 
-# Dev-конфиги и исходные карты
-jsconfig.json
+# Исходники и конфиги сборки — в .vsix нужен только результат сборки (dist/).
+src/**
+esbuild.js
+eslint.config.mjs
 **/tsconfig.json
-**/.eslintrc*
 **/*.map
 
-# node_modules не нужен: у расширения нет runtime-зависимостей.
+# node_modules не нужен: всё необходимое уже внутри dist/.
 node_modules/**

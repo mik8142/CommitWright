@@ -1,0 +1,22 @@
+{
+  // tsc здесь НЕ собирает код (это делает esbuild) — он только проверяет типы
+  // (скрипты check-types/watch:tsc запускают его с --noEmit).
+  "compilerOptions": {
+    // moduleResolution "bundler" — потому что финальную сборку делает бандлер (esbuild).
+    // Удобство: относительные импорты пишем без расширения — `from './config'`,
+    // а не `from './config.js'`, как требовал бы режим Node16.
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    // Расширение работает в Node-хосте VS Code — явно подключаем глобальные node-типы
+    // (NodeJS.ProcessEnv, process, child_process и т.д.). 'vscode' тянется через import.
+    "types": ["node"],
+    "rootDir": "src",
+    "sourceMap": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}

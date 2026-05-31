@@ -5,9 +5,18 @@
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}"
-      ]
+      // Первый аргумент (путь к папке) открывает её в окне Extension Development Host.
+      // Без него окно стартует пустым (No Folder Opened) — тогда нет git-провайдера,
+      // а наша кнопка в scm/title завязана на `when: scmProvider == git` и не появляется.
+      // Открываем отдельный тестовый репозиторий, чтобы возиться со staged-изменениями
+      // там, а не в самом CommitWright. Путь относительный (../test_repo вместо
+      // D:\git\test_repo) — чтобы F5 работал и на офисной машине, если тестовый репо
+      // лежит рядом с проектом. extensionDevelopmentPath остаётся на самом расширении.
+      "args": ["${workspaceFolder}/../test_repo", "--extensionDevelopmentPath=${workspaceFolder}"],
+      // Дебаггер маппит брейкпоинты на собранный код через source map.
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      // Перед запуском хоста — разовая сборка (задача "build" из tasks.json).
+      "preLaunchTask": "build"
     }
   ]
 }

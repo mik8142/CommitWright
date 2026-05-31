@@ -6,7 +6,7 @@ Generate Git commit messages from your staged changes — straight in VS Code's 
 
 ## Features
 
-Click the ✨ button in the Source Control panel and CommitWright drafts a commit message from your staged diff, then drops it into the commit input box for you to review and edit.
+Click the **Generate Commit Message** button (the 💬✨ icon in the Source Control panel) and CommitWright drafts a commit message from your staged diff, then drops it into the commit input box for you to review and edit.
 
 <!-- TODO: add a short GIF/screenshot here once the feature works. A visual sells the Marketplace page. -->
 
