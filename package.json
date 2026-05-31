@@ -211,7 +211,7 @@
             "Pin the button to the left edge of the Source Control title actions.",
             "Pin the button to the right edge, just before the '...' overflow menu."
           ],
-          "default": "right",
+          "default": "left",
           "order": 40,
           "description": "Where to place the CommitWright button among the built-in Source Control title actions."
         }

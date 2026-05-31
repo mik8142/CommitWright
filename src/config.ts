@@ -63,5 +63,5 @@ export type ButtonPosition = 'left' | 'right';
 
 export function getScmTitlePosition(): ButtonPosition {
   const c = vscode.workspace.getConfiguration('commitwright');
-  return c.get<ButtonPosition>('position.scmTitle') ?? 'right';
+  return c.get<ButtonPosition>('position.scmTitle') ?? 'left';
 }
