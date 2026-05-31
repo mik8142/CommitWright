@@ -1,10 +1,14 @@
 import * as vscode from 'vscode';
-import { getActiveRepository } from './git';
+import { getActiveRepository, getDiff, truncateDiff } from './git';
+import { getConfig } from './config';
+import { buildPrompt } from './prompt';
+import { buildInvocation, runCli } from './cli';
+import { showError } from './errors';
 import { registerEntrypoints } from './entrypoints';
+import { t } from './i18n';
 
 // CommitWright — генерация Git commit-сообщения из staged-изменений через локальный CLI.
-// Поток целиком: diff -> CLI -> вставка результата в поле commit-сообщения.
-// Каркас (команда + кнопка в SCM + доступ к git) работает; бизнес-логика — TODO Фазы 1.
+// Поток целиком: diff -> промпт -> CLI -> вставка результата в поле commit-сообщения.
 
 export function activate(context: vscode.ExtensionContext): void {
   // Выставить context-keys точек входа (позиция/видимость) сразу при активации.
@@ -14,21 +18,33 @@ export function activate(context: vscode.ExtensionContext): void {
     try {
       const repo = getActiveRepository();
       if (!repo) {
-        vscode.window.showErrorMessage('CommitWright: Git-репозиторий не найден.');
+        vscode.window.showInformationMessage(t('CommitWright: no Git repository found.'));
         return;
       }
 
-      // TODO 1 (Фаза 1): const diff = await getDiff(repo.rootUri.fsPath, cfg.diffSource)
-      // TODO 2 (Фаза 1): пустой diff -> showInformationMessage(...) и return
-      // TODO 3 (Фаза 1): const message = await runCli(buildInvocation(cfg), diff)  (промпт из prompt.ts)
-      // TODO 4 (Фаза 1): repo.inputBox.value = message
+      const cfg = getConfig();
+      const diff = await getDiff(repo.rootUri.fsPath, cfg.diffSource);
+      if (!diff.trim()) {
+        const hint =
+          cfg.diffSource === 'staged'
+            ? t('CommitWright: nothing staged. Stage changes first, or set diffSource to "all".')
+            : t('CommitWright: no changes to describe.');
+        vscode.window.showInformationMessage(hint);
+        return;
+      }
 
-      vscode.window.showInformationMessage(
-        'CommitWright: каркас на TypeScript. Логика генерации — TODO Фазы 1.',
+      const prompt = buildPrompt(cfg, truncateDiff(diff));
+
+      const message = await vscode.window.withProgress(
+        { location: vscode.ProgressLocation.SourceControl, title: t('Generating commit message…') },
+        () => runCli(buildInvocation(cfg), prompt, cfg.timeoutMs),
       );
+
+      // Вставляем в поле ввода Source Control. Не затираем молча правки пользователя:
+      // если там уже что-то есть, добавлять — его дело; здесь кладём черновик для ревью.
+      repo.inputBox.value = message;
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      vscode.window.showErrorMessage(`CommitWright: ${message}`);
+      await showError(err);
     }
   });
 

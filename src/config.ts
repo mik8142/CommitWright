@@ -16,6 +16,16 @@ export interface CommitWrightConfig {
   model: string;
   /** Что отдавать генератору: только staged или все отслеживаемые изменения. */
   diffSource: DiffSource;
+  /** Стиль сообщения: conventional / brackets / plain. Влияет на {$tags} в промпте. */
+  style: CommitStyle;
+  /** Язык коммита: 'auto' (по локали VS Code) или свободная строка ('Russian', 'elvish', …). */
+  commitLanguage: string;
+  /** Произвольные пользовательские правила, попадают в {$extra}. */
+  extraInstructions: string;
+  /** Свой шаблон промпта; пустая строка -> встроенный шаблон по умолчанию. */
+  promptTemplate: string;
+  /** Таймаут вызова CLI в миллисекундах. */
+  timeoutMs: number;
 }
 
 export function getConfig(): CommitWrightConfig {
@@ -24,6 +34,11 @@ export function getConfig(): CommitWrightConfig {
     cliPath: c.get<string>('cliPath') ?? 'claude',
     model: c.get<string>('model') ?? '',
     diffSource: c.get<DiffSource>('diffSource') ?? 'staged',
+    style: c.get<CommitStyle>('style') ?? 'conventional',
+    commitLanguage: c.get<string>('commitLanguage') ?? 'auto',
+    extraInstructions: c.get<string>('extraInstructions') ?? '',
+    promptTemplate: c.get<string>('promptTemplate') ?? '',
+    timeoutMs: c.get<number>('timeoutMs') ?? 60_000,
   };
 }
 
