@@ -43,6 +43,11 @@
         "command": "commitwright.selectLanguage",
         "title": "Select Commit Language",
         "category": "CommitWright"
+      },
+      {
+        "command": "commitwright.selectModel",
+        "title": "Select Model",
+        "category": "CommitWright"
       }
     ],
     "menus": {
@@ -65,12 +70,51 @@
         "commitwright.cliPath": {
           "type": "string",
           "default": "claude",
+          "order": 12,
           "description": "Path to the CLI executable. Use an absolute path if it is not on PATH (common on Windows, e.g. C:\\\\Users\\\\you\\\\...\\\\claude.exe)."
         },
         "commitwright.model": {
           "type": "string",
           "default": "",
-          "description": "Optional model override passed to the CLI. Leave empty to use the CLI default."
+          "order": 10,
+          "markdownDescription": "Model passed to the CLI. [▸ Pick from list](command:commitwright.selectModel) — the easiest way to set this. You can also type an alias (`opus`, `sonnet`, `haiku`) or a full model name (e.g. `claude-opus-4-8`). Leave empty to use the CLI default."
+        },
+        "commitwright.effort": {
+          "type": "string",
+          "enum": [
+            "",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "enumItemLabels": [
+            "Default (model's default, usually High)",
+            "Low",
+            "Medium",
+            "High",
+            "Extra high",
+            "Max"
+          ],
+          "enumDescriptions": [
+            "Use the model's default effort (High on most models; Extra high on some). Leave as is unless you want to override.",
+            "Lowest — fastest. Usually enough for short commit messages.",
+            "Medium.",
+            "High.",
+            "Extra high.",
+            "Maximum — deepest reasoning, slowest."
+          ],
+          "default": "high",
+          "order": 11,
+          "markdownDescription": "Thinking effort passed to the CLI (`--effort`). Defaults to `high`. Lower it to `low` to speed up commit-message generation, or pick the empty option to use the model's own default effort."
+        },
+        "commitwright.timeoutMs": {
+          "type": "number",
+          "default": 60000,
+          "minimum": 5000,
+          "order": 13,
+          "description": "Timeout for the CLI call, in milliseconds."
         },
         "commitwright.diffSource": {
           "type": "string",
@@ -85,45 +129,76 @@
             "All changes: tracked (staged + unstaged) plus untracked files."
           ],
           "default": "auto",
+          "order": 20,
           "description": "Which changes to feed to the generator."
+        },
+        "commitwright.includeChangedFiles": {
+          "type": "boolean",
+          "default": true,
+          "order": 21,
+          "description": "Include the list of changed file paths in the prompt. Helps the model understand the change scope and derive a scope/prefix from the paths."
         },
         "commitwright.style": {
           "type": "string",
           "enum": [
+            "plain",
+            "scoped",
             "conventional",
-            "brackets",
-            "plain"
+            "brackets"
+          ],
+          "enumItemLabels": [
+            "Plain",
+            "Scoped",
+            "Conventional Commits",
+            "Bracketed tags"
           ],
           "enumDescriptions": [
-            "Conventional Commits (feat:, fix:, …).",
-            "Bracketed tags ([FIX], [NEW FEATURE], …).",
-            "Plain free-form message."
+            "Plain subject (no machine prefix).",
+            "scope: summary — a lowercase area prefix, no fixed type list.",
+            "Conventional Commits (feat:, fix:, …) — for changelog/semver automation.",
+            "Bracketed tags ([FIX], [NEW FEATURE], …)."
           ],
-          "default": "conventional",
-          "description": "Commit message style. Drives the {$tags} placeholder in the prompt."
+          "default": "plain",
+          "order": 30,
+          "description": "Commit message style."
+        },
+        "commitwright.messageMode": {
+          "type": "string",
+          "enum": [
+            "subject",
+            "subjectBody"
+          ],
+          "enumItemLabels": [
+            "Subject only",
+            "Subject + body"
+          ],
+          "enumDescriptions": [
+            "Generate just the subject line.",
+            "Generate a subject line plus an explanatory body."
+          ],
+          "default": "subject",
+          "order": 31,
+          "description": "How much of the commit message to generate."
         },
         "commitwright.commitLanguage": {
           "type": "string",
           "default": "auto",
+          "order": 32,
           "markdownDescription": "Language of the generated commit message. [▸ Pick from list](command:commitwright.selectLanguage) — the easiest way to set this. You can also type any language name here (e.g. `Russian`, `German`, or even `Elvish`). Use `auto` — or leave this empty — to follow the VS Code display language."
         },
         "commitwright.extraInstructions": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
+          "order": 33,
           "description": "Extra free-form rules added to the prompt (fills the {$extra} placeholder)."
         },
         "commitwright.promptTemplate": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
-          "markdownDescription": "Custom prompt template. Leave empty to use the built-in default. Placeholders: `{$diff}`, `{$lang}`, `{$style}`, `{$tags}`, `{$extra}`. If `{$diff}` is omitted, the diff is appended automatically."
-        },
-        "commitwright.timeoutMs": {
-          "type": "number",
-          "default": 60000,
-          "minimum": 5000,
-          "description": "Timeout for the CLI call, in milliseconds."
+          "order": 34,
+          "markdownDescription": "Custom prompt template that fully replaces the built-in one. Leave empty to use the default. Placeholders: `{$diff}`, `{$lang}`, `{$style}`, `{$tags}`, `{$extra}`, `{$files}`. If `{$diff}` is omitted, the diff is appended automatically."
         },
         "commitwright.position.scmTitle": {
           "type": "string",
@@ -136,6 +211,7 @@
             "Pin the button to the right edge, just before the '...' overflow menu."
           ],
           "default": "right",
+          "order": 40,
           "description": "Where to place the CommitWright button among the built-in Source Control title actions."
         }
       }

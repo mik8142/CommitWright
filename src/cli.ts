@@ -22,6 +22,22 @@ export interface CliInvocation {
   env?: NodeJS.ProcessEnv;
 }
 
+// Частые модели для пикера selectModel. Это подсказки-алиасы — пользователь всегда может
+// ввести полное имя (например 'claude-opus-4-8') или будущую модель, поэтому список не
+// обязан быть полным. Пустое значение модели = дефолт CLI (см. buildInvocation).
+export interface CommonModel {
+  /** Алиас, уходящий в --model и в настройку. */
+  alias: string;
+  /** Краткое пояснение для пикера. */
+  hint: string;
+}
+
+export const COMMON_MODELS: readonly CommonModel[] = [
+  { alias: 'opus', hint: 'most capable' },
+  { alias: 'sonnet', hint: 'balanced' },
+  { alias: 'haiku', hint: 'fastest' },
+];
+
 export function buildInvocation(cfg: CommitWrightConfig): CliInvocation {
   // -p/--print: неинтерактивный вывод; text: чистый текст; --tools "": без инструментов
   // (нам нужен только текст из нашего diff, не доступ к ФС); --no-session-persistence:
@@ -29,6 +45,12 @@ export function buildInvocation(cfg: CommitWrightConfig): CliInvocation {
   const args = ['-p', '--output-format', 'text', '--tools', '', '--no-session-persistence'];
   if (cfg.model.trim()) {
     args.push('--model', cfg.model.trim());
+  }
+  // CLI не принимает temperature (нет такого флага — сверено по `claude --help`), поэтому
+  // стабильность формата держим промптом. Доступен только --effort: для короткой задачи
+  // генерации сообщения хватает низкого уровня (быстрее), но решает пользователь.
+  if (cfg.effort.trim()) {
+    args.push('--effort', cfg.effort.trim());
   }
   return { command: cfg.cliPath, args };
 }

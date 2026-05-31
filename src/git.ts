@@ -37,6 +37,22 @@ const GIT_EXEC_OPTS = {
   windowsHide: true,
 } as const;
 
+// Lock-файлы исключаем из diff (по ресёрчу): они огромные, шумные и не улучшают сообщение.
+// Реализуем через git pathspec exclude с glob-магией — фильтрует и сам git, надёжнее ручного.
+// '.' — обязательный позитивный pathspec (иначе exclude-only может не сматчиться).
+const LOCK_EXCLUDES = [
+  ':(exclude,glob)**/package-lock.json',
+  ':(exclude,glob)**/yarn.lock',
+  ':(exclude,glob)**/pnpm-lock.yaml',
+  ':(exclude,glob)**/Cargo.lock',
+  ':(exclude,glob)**/go.sum',
+  ':(exclude,glob)**/composer.lock',
+  ':(exclude,glob)**/Gemfile.lock',
+  ':(exclude,glob)**/poetry.lock',
+  ':(exclude,glob)**/*.lock',
+];
+const PATHSPEC = ['--', '.', ...LOCK_EXCLUDES];
+
 // Запуск git с фиксированными аргументами (без shell -> нет инъекции).
 async function runGit(cwd: string, args: string[]): Promise<string> {
   const { stdout } = await execFileAsync('git', args, { cwd, ...GIT_EXEC_OPTS });
@@ -62,8 +78,7 @@ async function hasHead(cwd: string): Promise<boolean> {
 // а promisify(execFile) на ненулевом коде режектит — поэтому ловим reject и берём stdout.
 // /dev/null понимается git'ом на всех платформах, включая Windows (это git-изм, не путь ОС).
 async function diffUntracked(cwd: string): Promise<string> {
-  const list = await runGit(cwd, ['ls-files', '--others', '--exclude-standard']);
-  const files = list.split('\n').map((s) => s.trim()).filter(Boolean);
+  const files = await listUntracked(cwd);
 
   let out = '';
   for (const file of files) {
@@ -84,12 +99,21 @@ async function diffUntracked(cwd: string): Promise<string> {
   return out;
 }
 
+// Перечислить неотслеживаемые файлы (с уважением к .gitignore и исключением lock-файлов).
+async function listUntracked(cwd: string): Promise<string[]> {
+  const list = await runGit(cwd, ['ls-files', '--others', '--exclude-standard', ...PATHSPEC]);
+  return list
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 // «Все изменения»: отслеживаемые (staged + unstaged) + неотслеживаемые файлы.
 // has HEAD -> `git diff HEAD`; свежий репозиторий без коммитов -> эквивалент `--cached`.
 async function getAllChanges(cwd: string): Promise<string> {
   const tracked = (await hasHead(cwd))
-    ? await runGit(cwd, ['diff', 'HEAD'])
-    : await runGit(cwd, ['diff', '--cached']);
+    ? await runGit(cwd, ['diff', 'HEAD', ...PATHSPEC])
+    : await runGit(cwd, ['diff', '--cached', ...PATHSPEC]);
   const untracked = await diffUntracked(cwd);
   if (tracked && untracked) {
     return `${tracked}\n${untracked}`;
@@ -97,23 +121,49 @@ async function getAllChanges(cwd: string): Promise<string> {
   return tracked || untracked;
 }
 
+// Решение «staged или all» для режима auto — одна точка, чтобы diff и список файлов совпадали.
+async function useStaged(cwd: string, source: DiffSource): Promise<boolean> {
+  if (source === 'staged') {
+    return true;
+  }
+  if (source === 'all') {
+    return false;
+  }
+  // auto: есть staged -> берём его (уважаем явный выбор); пусто -> все изменения.
+  const staged = await runGit(cwd, ['diff', '--cached', ...PATHSPEC]);
+  return staged.trim().length > 0;
+}
+
 // Возвращает diff в зависимости от источника:
 //   'staged' -> только проиндексированное (`git diff --cached`);
 //   'all'    -> все изменения (tracked staged+unstaged + untracked);
-//   'auto'   -> «по-умному»: есть staged -> берём его (уважаем явный выбор пользователя);
-//               ничего не застейджено -> берём все изменения (как привычная кнопка по Changes).
+//   'auto'   -> «по-умному»: есть staged -> берём его; пусто -> все изменения.
+// Lock-файлы исключены во всех режимах.
 export async function getDiff(cwd: string, source: DiffSource): Promise<string> {
-  if (source === 'staged') {
-    return runGit(cwd, ['diff', '--cached']);
-  }
-  if (source === 'auto') {
-    const staged = await runGit(cwd, ['diff', '--cached']);
-    if (staged.trim()) {
-      return staged;
-    }
-    // ничего не застейджено -> падаем в режим «все изменения»
+  if (await useStaged(cwd, source)) {
+    return runGit(cwd, ['diff', '--cached', ...PATHSPEC]);
   }
   return getAllChanges(cwd);
+}
+
+// Список изменённых файлов для блока FILES в промпте (помогает модели вывести scope).
+// Зеркалит логику getDiff, чтобы список совпадал с тем, что реально ушло в diff.
+export async function getChangedFiles(cwd: string, source: DiffSource): Promise<string[]> {
+  if (await useStaged(cwd, source)) {
+    return splitLines(await runGit(cwd, ['diff', '--cached', '--name-only', ...PATHSPEC]));
+  }
+  const tracked = (await hasHead(cwd))
+    ? await runGit(cwd, ['diff', 'HEAD', '--name-only', ...PATHSPEC])
+    : await runGit(cwd, ['diff', '--cached', '--name-only', ...PATHSPEC]);
+  const untracked = await listUntracked(cwd);
+  return [...new Set([...splitLines(tracked), ...untracked])];
+}
+
+function splitLines(text: string): string[] {
+  return text
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 // Input-guard: усечение слишком большого diff. Вынесено отдельной чистой функцией —

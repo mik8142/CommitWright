@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { getActiveRepository, getDiff, truncateDiff } from './git';
+import { getActiveRepository, getDiff, getChangedFiles, truncateDiff } from './git';
 import { getConfig } from './config';
 import { buildPrompt } from './prompt';
 import { buildInvocation, runCli } from './cli';
 import { showError } from './errors';
 import { registerEntrypoints } from './entrypoints';
-import { registerSelectLanguageCommand } from './commands';
+import { registerCommands } from './commands';
 import { t } from './i18n';
 
 // CommitWright — генерация Git commit-сообщения из staged-изменений через локальный CLI.
@@ -14,8 +14,8 @@ import { t } from './i18n';
 export function activate(context: vscode.ExtensionContext): void {
   // Выставить context-keys точек входа (позиция/видимость) сразу при активации.
   registerEntrypoints(context);
-  // Команда выбора языка коммитов (QuickPick + свободный ввод).
-  registerSelectLanguageCommand(context);
+  // Команды выбора языка и модели (QuickPick + свободный ввод).
+  registerCommands(context);
 
   const disposable = vscode.commands.registerCommand('commitwright.generate', async () => {
     try {
@@ -36,7 +36,8 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
 
-      const prompt = buildPrompt(cfg, truncateDiff(diff));
+      const files = cfg.includeFiles ? await getChangedFiles(repo.rootUri.fsPath, cfg.diffSource) : [];
+      const prompt = buildPrompt(cfg, truncateDiff(diff), files);
 
       const message = await vscode.window.withProgress(
         { location: vscode.ProgressLocation.SourceControl, title: t('Generating commit message…') },

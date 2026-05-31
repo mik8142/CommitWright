@@ -1,12 +1,18 @@
 # CommitWright
 
-Generate Git commit messages from your staged changes — straight in VS Code's Source Control panel, powered by your locally installed CLI.
+Generate Git commit messages from your changes — straight in VS Code's Source Control panel, powered by your locally installed CLI.
 
 > **Status:** early scaffold. Core logic is being implemented.
 
 ## Features
 
-Click the **Generate Commit Message** button (the 💬✨ icon in the Source Control panel) and CommitWright drafts a commit message from your staged diff, then drops it into the commit input box for you to review and edit.
+Click the **Generate Commit Message** button (the 💬✨ icon in the Source Control panel) and CommitWright drafts a commit message from your changes, then drops it into the commit input box for you to review and edit.
+
+By default it is smart about *what* to describe: if you have staged changes it uses those; otherwise it falls back to all your changes (including new, untracked files). Lock files are excluded automatically.
+
+## Privacy
+
+Your diff is sent only to the `claude` CLI running locally on your machine. The extension itself never sends anything anywhere.
 
 <!-- TODO: add a short GIF/screenshot here once the feature works. A visual sells the Marketplace page. -->
 
@@ -17,11 +23,14 @@ Click the **Generate Commit Message** button (the 💬✨ icon in the Source Con
 
 ## Extension Settings
 
-This extension contributes the following settings:
+A few of the settings this extension contributes:
 
 - `commitwright.cliPath` — path to the CLI executable (default: `claude`).
-- `commitwright.model` — optional model override passed to the CLI.
-- `commitwright.diffSource` — `staged` (default) or `all` tracked changes.
+- `commitwright.model` / `commitwright.effort` — optional model and thinking-effort overrides.
+- `commitwright.diffSource` — `auto` (default: staged if any, else all changes), `staged`, or `all`.
+- `commitwright.style` — `plain` (default), `scoped`, `conventional`, or `brackets`.
+- `commitwright.messageMode` — `subject` (default) or `subjectBody`.
+- `commitwright.commitLanguage` — output language; `auto` follows the VS Code display language.
 
 ## Known Issues
 

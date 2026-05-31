@@ -5,20 +5,32 @@ import * as vscode from 'vscode';
 
 export type DiffSource = 'staged' | 'all' | 'auto';
 
-// Заложено на будущее (Фаза 1): conventional — по умолчанию, plain — простой текст,
-// brackets — теги вида [FIX] (наполним позже).
-export type CommitStyle = 'conventional' | 'brackets' | 'plain';
+// Стиль сообщения. По данным ресёрча (research_commitwright.md):
+//   plain        — простой императивный subject (дефолт; покрывает большинство репо);
+//   scoped       — "scope: summary" без жёсткого энума (~44% реальных репо);
+//   conventional — Conventional Commits (feat:/fix:…; ~16%, но любим для changelog/semver);
+//   brackets     — [FIX]/[NEW FEATURE]… (нишевый, по запросу автора).
+export type CommitStyle = 'plain' | 'scoped' | 'conventional' | 'brackets';
+
+// Режим вывода: только subject или subject + тело.
+export type MessageMode = 'subject' | 'subjectBody';
 
 export interface CommitWrightConfig {
   /** Путь к CLI. На Windows надёжнее абсолютный путь (PATH виден не во всех шеллах). */
   cliPath: string;
   /** Переопределение модели; пустая строка — модель по умолчанию у CLI. */
   model: string;
-  /** Что отдавать генератору: только staged или все отслеживаемые изменения. */
+  /** Уровень мышления CLI (--effort): по умолчанию 'high'; пустая строка — дефолт модели. */
+  effort: string;
+  /** Что отдавать генератору: staged / all / auto. */
   diffSource: DiffSource;
-  /** Стиль сообщения: conventional / brackets / plain. Влияет на {$tags} в промпте. */
+  /** Стиль сообщения. */
   style: CommitStyle;
-  /** Язык коммита: 'auto' (по локали VS Code) или свободная строка ('Russian', 'elvish', …). */
+  /** Режим вывода: только subject или subject+body. */
+  messageMode: MessageMode;
+  /** Включать ли список изменённых файлов в промпт (помогает выводить scope). */
+  includeFiles: boolean;
+  /** Язык коммита: 'auto' (по локали VS Code) / пусто или свободная строка ('Russian', 'elvish', …). */
   commitLanguage: string;
   /** Произвольные пользовательские правила, попадают в {$extra}. */
   extraInstructions: string;
@@ -33,8 +45,11 @@ export function getConfig(): CommitWrightConfig {
   return {
     cliPath: c.get<string>('cliPath') ?? 'claude',
     model: c.get<string>('model') ?? '',
+    effort: c.get<string>('effort') ?? 'high',
     diffSource: c.get<DiffSource>('diffSource') ?? 'auto',
-    style: c.get<CommitStyle>('style') ?? 'conventional',
+    style: c.get<CommitStyle>('style') ?? 'plain',
+    messageMode: c.get<MessageMode>('messageMode') ?? 'subject',
+    includeFiles: c.get<boolean>('includeChangedFiles') ?? true,
     commitLanguage: c.get<string>('commitLanguage') ?? 'auto',
     extraInstructions: c.get<string>('extraInstructions') ?? '',
     promptTemplate: c.get<string>('promptTemplate') ?? '',
