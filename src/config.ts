@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 // Типизированное чтение настроек `commitwright.*`. Один источник истины для всего
 // расширения: остальные модули получают готовый объект, а не лезут в getConfiguration сами.
 
-export type DiffSource = 'staged' | 'all';
+export type DiffSource = 'staged' | 'all' | 'auto';
 
 // Заложено на будущее (Фаза 1): conventional — по умолчанию, plain — простой текст,
 // brackets — теги вида [FIX] (наполним позже).
@@ -33,7 +33,7 @@ export function getConfig(): CommitWrightConfig {
   return {
     cliPath: c.get<string>('cliPath') ?? 'claude',
     model: c.get<string>('model') ?? '',
-    diffSource: c.get<DiffSource>('diffSource') ?? 'staged',
+    diffSource: c.get<DiffSource>('diffSource') ?? 'auto',
     style: c.get<CommitStyle>('style') ?? 'conventional',
     commitLanguage: c.get<string>('commitLanguage') ?? 'auto',
     extraInstructions: c.get<string>('extraInstructions') ?? '',

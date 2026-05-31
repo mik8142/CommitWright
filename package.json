@@ -70,11 +70,17 @@
         "commitwright.diffSource": {
           "type": "string",
           "enum": [
+            "auto",
             "staged",
             "all"
           ],
-          "default": "staged",
-          "description": "Which changes to feed to the generator: only staged ('git diff --cached') or all tracked changes."
+          "enumDescriptions": [
+            "Smart: use staged changes if any are staged, otherwise use all changes (tracked + untracked).",
+            "Only staged changes ('git diff --cached').",
+            "All changes: tracked (staged + unstaged) plus untracked files."
+          ],
+          "default": "auto",
+          "description": "Which changes to feed to the generator."
         },
         "commitwright.style": {
           "type": "string",
