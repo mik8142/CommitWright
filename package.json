@@ -87,6 +87,13 @@
           "group": "inline",
           "when": "scmProvider == git && scmResourceGroup == workingTree && !commitwright.hasStaged && commitwright.show.changesInline"
         }
+      ],
+      "view/title": [
+        {
+          "command": "commitwright.generate",
+          "group": "navigation",
+          "when": "view == commitwright.panel"
+        }
       ]
     },
     "keybindings": [
@@ -95,6 +102,21 @@
         "key": "ctrl+alt+g",
         "mac": "cmd+alt+g",
         "when": "scmProvider == git || editorLangId == git-commit"
+      }
+    ],
+    "views": {
+      "scm": [
+        {
+          "id": "commitwright.panel",
+          "name": "CommitWright",
+          "when": "scmProvider == git && commitwright.show.panel"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "commitwright.panel",
+        "contents": "Generate a commit message from your staged or working changes.\n[Generate Commit Message](command:commitwright.generate)"
       }
     ],
     "configuration": {
