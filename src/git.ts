@@ -12,16 +12,32 @@ export interface GitRepository {
   readonly rootUri: vscode.Uri;
   /** Поле ввода commit-сообщения в панели Source Control — сюда кладём результат. */
   readonly inputBox: { value: string };
+  /** Состояние репозитория — нужно, чтобы отслеживать наличие staged-изменений. */
+  readonly state: {
+    readonly indexChanges: readonly unknown[];
+    readonly onDidChange: vscode.Event<void>;
+  };
 }
 
-/** Возвращает первый репозиторий воркспейса или undefined, если git-репо нет. */
-export function getActiveRepository(): GitRepository | undefined {
+/** Минимальный контракт git-API (полный объявлен в API расширения vscode.git). */
+interface GitApi {
+  readonly repositories: readonly GitRepository[];
+  readonly onDidOpenRepository: vscode.Event<GitRepository>;
+}
+
+/** git-API расширения vscode.git (версия 1) или undefined, если оно не активно. */
+export function getGitApi(): GitApi | undefined {
   const ext = vscode.extensions.getExtension('vscode.git');
   if (!ext?.isActive) {
     return undefined;
   }
-  const api = ext.exports.getAPI(1); // версия git-API — 1
-  if (!api.repositories.length) {
+  return ext.exports.getAPI(1) as GitApi; // версия git-API — 1
+}
+
+/** Возвращает первый репозиторий воркспейса или undefined, если git-репо нет. */
+export function getActiveRepository(): GitRepository | undefined {
+  const api = getGitApi();
+  if (!api || !api.repositories.length) {
     return undefined;
   }
   // TODO (позже): при нескольких репозиториях выбрать активный (по фокусу SCM).

@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { getScmTitlePosition, getEntrypoints, ENTRYPOINT_KEYS } from './config';
+import { getActiveRepository, getGitApi } from './git';
+import type { GitRepository } from './git';
 import { t } from './i18n';
 
 // Точки входа (entry points) и управление их видимостью/расположением.
@@ -28,6 +30,37 @@ export function registerEntrypoints(context: vscode.ExtensionContext): void {
         applyContextKeys();
       }
       maybePromptReload(e);
+    }),
+  );
+
+  // Отслеживаем наличие staged-изменений (для context-key commitwright.hasStaged).
+  trackStagedContext(context);
+}
+
+// Держим context-key commitwright.hasStaged актуальным: true, когда в репозитории есть
+// проиндексированные (staged) изменения. По нему инлайн-кнопка стоит у «Staged Changes», когда
+// staged есть, и у «Changes», когда пусто. Слушаем state.onDidChange каждого репозитория (и новые
+// — через onDidOpenRepository): это состояние самого git, а не наша настройка.
+function trackStagedContext(context: vscode.ExtensionContext): void {
+  const apply = (): void => {
+    const repo = getActiveRepository();
+    const hasStaged = repo ? repo.state.indexChanges.length > 0 : false;
+    void vscode.commands.executeCommand('setContext', 'commitwright.hasStaged', hasStaged);
+  };
+  apply();
+
+  const api = getGitApi();
+  if (!api) {
+    return; // git-расширение ещё не активно — ключ останется false до следующего повода
+  }
+  const hook = (repo: GitRepository): void => {
+    context.subscriptions.push(repo.state.onDidChange(apply));
+  };
+  api.repositories.forEach(hook);
+  context.subscriptions.push(
+    api.onDidOpenRepository((repo) => {
+      hook(repo);
+      apply();
     }),
   );
 }

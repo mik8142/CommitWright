@@ -68,6 +68,25 @@
           "group": "navigation@100",
           "when": "scmProvider == git && commitwright.show.scmTitle && commitwright.pos.scmTitle == 'right'"
         }
+      ],
+      "editor/title": [
+        {
+          "command": "commitwright.generate",
+          "group": "navigation",
+          "when": "resourceLangId == git-commit && commitwright.show.editorButton"
+        }
+      ],
+      "scm/resourceGroup/context": [
+        {
+          "command": "commitwright.generate",
+          "group": "inline",
+          "when": "scmProvider == git && scmResourceGroup == index && commitwright.show.changesInline"
+        },
+        {
+          "command": "commitwright.generate",
+          "group": "inline",
+          "when": "scmProvider == git && scmResourceGroup == workingTree && !commitwright.hasStaged && commitwright.show.changesInline"
+        }
       ]
     },
     "keybindings": [
