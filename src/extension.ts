@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getActiveRepository, getDiff, getChangedFiles, truncateDiff } from './git';
 import type { GitRepository } from './git';
 import { getConfig } from './config';
+import type { CommitWrightConfig } from './config';
 import { buildPrompt } from './prompt';
 import { buildInvocation, runCli } from './cli';
 import { showError } from './errors';
@@ -18,7 +19,8 @@ export function activate(context: vscode.ExtensionContext): void {
   // Команды выбора языка и модели (QuickPick + свободный ввод).
   registerCommands(context);
 
-  const disposable = vscode.commands.registerCommand('commitwright.generate', async () => {
+  // override приходит от slash-команд (per-commit формат/режим/язык поверх глобальных настроек).
+  const generate = async (override?: Partial<CommitWrightConfig>): Promise<void> => {
     try {
       const repo = getActiveRepository();
       if (!repo) {
@@ -26,7 +28,7 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
 
-      const cfg = getConfig();
+      const cfg = { ...getConfig(), ...override };
       const diff = await getDiff(repo.rootUri.fsPath, cfg.diffSource);
       if (!diff.trim()) {
         const hint =
@@ -51,8 +53,9 @@ export function activate(context: vscode.ExtensionContext): void {
     } catch (err) {
       await showError(err);
     }
-  });
+  };
 
+  const disposable = vscode.commands.registerCommand('commitwright.generate', generate);
   context.subscriptions.push(disposable);
 }
 

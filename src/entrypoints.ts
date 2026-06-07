@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import { getScmTitlePosition, getEntrypoints, ENTRYPOINT_KEYS } from './config';
+import type { CommitWrightConfig } from './config';
 import { getActiveRepository, getGitApi } from './git';
 import type { GitRepository } from './git';
+import { COMMON_LANGUAGES } from './prompt';
 import { t } from './i18n';
 
 // Точки входа (entry points) и управление их видимостью/расположением.
@@ -102,6 +104,22 @@ function registerStatusBar(context: vscode.ExtensionContext): void {
 // Печать «/generate» предлагает пункт, выбор которого убирает напечатанный триггер и запускает
 // команду генерации. Видимость читаем в момент вызова (getEntrypoints().slashTrigger) — галочка
 // действует реактивно без перерегистрации провайдера.
+// Пресеты slash-меню: каждый — частичный override, уходящий в команду generate. Композится с
+// глобальным конфигом (переопределяет только свои оси: стиль / режим / язык).
+const SLASH_PRESETS: ReadonlyArray<{
+  cmd: string;
+  detail: string;
+  override: Partial<CommitWrightConfig>;
+}> = [
+  { cmd: '/generate', detail: 'default', override: {} },
+  { cmd: '/plain', detail: 'plain subject', override: { style: 'plain' } },
+  { cmd: '/scoped', detail: 'scope: summary', override: { style: 'scoped' } },
+  { cmd: '/conventional', detail: 'feat / fix(…)', override: { style: 'conventional' } },
+  { cmd: '/brackets', detail: '[FIX] …', override: { style: 'brackets' } },
+  { cmd: '/subject', detail: 'subject only', override: { messageMode: 'subject' } },
+  { cmd: '/body', detail: 'subject + body', override: { messageMode: 'subjectBody' } },
+];
+
 function registerSlashTrigger(context: vscode.ExtensionContext): void {
   const provider: vscode.CompletionItemProvider = {
     provideCompletionItems(document, position) {
@@ -109,17 +127,49 @@ function registerSlashTrigger(context: vscode.ExtensionContext): void {
         return [];
       }
       const prefix = document.lineAt(position).text.slice(0, position.character);
-      const slash = prefix.lastIndexOf('/');
-      if (slash < 0) {
+      // Только когда «/» — первый непробельный символ поля (не слэш в середине текста сообщения).
+      const trimmed = prefix.trimStart();
+      if (!trimmed.startsWith('/')) {
         return [];
       }
-      const item = new vscode.CompletionItem('/generate', vscode.CompletionItemKind.Event);
-      item.detail = t('Generate commit message with CommitWright');
-      // Текст не вставляем: заменяем напечатанный «/…» на пустоту, затем команда запускает генерацию.
-      item.insertText = '';
-      item.range = new vscode.Range(position.line, slash, position.line, position.character);
-      item.command = { command: 'commitwright.generate', title: t('Generate Commit Message') };
-      return [item];
+      const slash = prefix.length - trimmed.length;
+      const range = new vscode.Range(position.line, slash, position.line, position.character);
+      const generateCmd = (override: Partial<CommitWrightConfig>): vscode.Command => ({
+        command: 'commitwright.generate',
+        title: 'Generate',
+        arguments: [override],
+      });
+
+      // Второй уровень: «/lang …» -> список языков, выбор запускает генерацию на этом языке.
+      if (/^\/lang\b/.test(trimmed)) {
+        return COMMON_LANGUAGES.map((l) => {
+          const it = new vscode.CompletionItem(l.english, vscode.CompletionItemKind.Value);
+          it.detail = l.native === l.english ? undefined : l.native;
+          it.filterText = `/lang ${l.english}`;
+          it.insertText = '';
+          it.range = range;
+          it.command = generateCmd({ commitLanguage: l.english });
+          return it;
+        });
+      }
+
+      // Первый уровень: плоские пресеты форматов + вход в /lang (двухуровневый).
+      const items = SLASH_PRESETS.map((p) => {
+        const it = new vscode.CompletionItem(p.cmd, vscode.CompletionItemKind.Event);
+        it.detail = p.detail;
+        it.insertText = '';
+        it.range = range;
+        it.command = generateCmd(p.override);
+        return it;
+      });
+      const langItem = new vscode.CompletionItem('/lang', vscode.CompletionItemKind.Folder);
+      langItem.detail = t('choose language…');
+      langItem.insertText = '/lang ';
+      langItem.range = range;
+      // Не запускаем генерацию — вставляем «/lang » и перевызываем автодополнение (второй уровень).
+      langItem.command = { command: 'editor.action.triggerSuggest', title: '' };
+      items.push(langItem);
+      return items;
     },
   };
   context.subscriptions.push(
