@@ -49,6 +49,11 @@
         "command": "commitwright.selectModel",
         "title": "Select Model",
         "category": "CommitWright"
+      },
+      {
+        "command": "commitwright.configureEntrypoints",
+        "title": "Configure Entry Points",
+        "category": "CommitWright"
       }
     ],
     "menus": {
@@ -56,12 +61,12 @@
         {
           "command": "commitwright.generate",
           "group": "navigation@-100",
-          "when": "scmProvider == git && commitwright.pos.scmTitle == 'left'"
+          "when": "scmProvider == git && commitwright.show.scmTitle && commitwright.pos.scmTitle == 'left'"
         },
         {
           "command": "commitwright.generate",
           "group": "navigation@100",
-          "when": "scmProvider == git && commitwright.pos.scmTitle == 'right'"
+          "when": "scmProvider == git && commitwright.show.scmTitle && commitwright.pos.scmTitle == 'right'"
         }
       ]
     },
@@ -214,6 +219,28 @@
           "default": "left",
           "order": 40,
           "description": "Where to place the CommitWright button among the built-in Source Control title actions."
+        },
+        "commitwright.entrypoints": {
+          "type": "object",
+          "order": 41,
+          "additionalProperties": false,
+          "properties": {
+            "scmTitle": { "type": "boolean", "description": "Source Control title bar button." },
+            "editorButton": { "type": "boolean", "description": "Commit editor toolbar button (while editing COMMIT_EDITMSG)." },
+            "changesInline": { "type": "boolean", "description": "Inline action on the Changes group." },
+            "panel": { "type": "boolean", "description": "Dedicated CommitWright panel in Source Control." },
+            "slashTrigger": { "type": "boolean", "description": "Slash command ('/generate') in the commit message box." },
+            "statusBar": { "type": "boolean", "description": "Status bar item." }
+          },
+          "default": {
+            "scmTitle": true,
+            "editorButton": true,
+            "changesInline": true,
+            "panel": true,
+            "slashTrigger": true,
+            "statusBar": true
+          },
+          "description": "Where the generate action appears. Toggle each entry point on or off."
         }
       }
     }

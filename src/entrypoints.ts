@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getScmTitlePosition } from './config';
+import { getScmTitlePosition, getEntrypoints, ENTRYPOINT_KEYS } from './config';
 import { t } from './i18n';
 
 // Точки входа (entry points) и управление их видимостью/расположением.
@@ -21,7 +21,10 @@ export function registerEntrypoints(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration('commitwright.position')) {
+      if (
+        e.affectsConfiguration('commitwright.position') ||
+        e.affectsConfiguration('commitwright.entrypoints')
+      ) {
         applyContextKeys();
       }
       maybePromptReload(e);
@@ -31,11 +34,17 @@ export function registerEntrypoints(context: vscode.ExtensionContext): void {
 
 // Один источник истины = настройки: читаем их и транслируем в context-keys для when.
 function applyContextKeys(): void {
+  // Позиция тулбар-кнопки (лево/право) — выбирает между двумя scm/title-вкладами.
   void vscode.commands.executeCommand(
     'setContext',
     'commitwright.pos.scmTitle',
     getScmTitlePosition(),
   );
+  // Видимость каждой точки входа: commitwright.show.<key> -> when соответствующего вклада.
+  const entrypoints = getEntrypoints();
+  for (const key of ENTRYPOINT_KEYS) {
+    void vscode.commands.executeCommand('setContext', `commitwright.show.${key}`, entrypoints[key]);
+  }
 }
 
 // Если изменилась настройка из списка «требует reload» — предложить перезагрузку окна.

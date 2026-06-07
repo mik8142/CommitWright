@@ -65,3 +65,29 @@ export function getScmTitlePosition(): ButtonPosition {
   const c = vscode.workspace.getConfiguration('commitwright');
   return c.get<ButtonPosition>('position.scmTitle') ?? 'left';
 }
+
+// Точки входа: видимость каждой хранится в одном object commitwright.entrypoints с булевыми полями.
+// Ключи — единый источник истины (их читают и механика context-keys, и пульт configureEntrypoints).
+export const ENTRYPOINT_KEYS = [
+  'scmTitle',
+  'editorButton',
+  'changesInline',
+  'panel',
+  'slashTrigger',
+  'statusBar',
+] as const;
+export type EntrypointKey = (typeof ENTRYPOINT_KEYS)[number];
+
+// Видимость каждой точки. Подстраховка: отсутствующее поле -> true (показываем), чтобы частично
+// заданный пользователем object не «погасил» точки, которых он в settings.json не упоминал.
+export function getEntrypoints(): Record<EntrypointKey, boolean> {
+  const obj =
+    vscode.workspace
+      .getConfiguration('commitwright')
+      .get<Partial<Record<EntrypointKey, boolean>>>('entrypoints') ?? {};
+  const result = {} as Record<EntrypointKey, boolean>;
+  for (const key of ENTRYPOINT_KEYS) {
+    result[key] = obj[key] ?? true;
+  }
+  return result;
+}

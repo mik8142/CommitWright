@@ -4,6 +4,8 @@ import type { CommonLanguage } from './prompt';
 import { COMMON_MODELS } from './cli';
 import type { CommonModel } from './cli';
 import { t } from './i18n';
+import { ENTRYPOINT_KEYS } from './config';
+import type { EntrypointKey } from './config';
 
 // Пользовательские команды поверх главной commitwright.generate.
 // Сейчас здесь selectLanguage и selectModel; в Фазе 2 сюда добавится configureEntrypoints.
@@ -146,7 +148,54 @@ function registerSelectModel(context: vscode.ExtensionContext): void {
   context.subscriptions.push(disposable);
 }
 
+// Презентация точек входа в пульте. Ключи — из config.ENTRYPOINT_KEYS (единый источник истины),
+// здесь только подписи для QuickPick.
+const ENTRYPOINT_LABELS: Record<EntrypointKey, { label: string; detail: string }> = {
+  scmTitle: { label: 'Source Control title bar', detail: 'Button in the Source Control panel header.' },
+  editorButton: { label: 'Commit editor toolbar', detail: 'Button while editing the commit message (COMMIT_EDITMSG).' },
+  changesInline: { label: 'Inline on Changes', detail: 'Action on the Changes group row.' },
+  panel: { label: 'Source Control panel', detail: 'Dedicated CommitWright view.' },
+  slashTrigger: { label: 'Slash command in message box', detail: 'Type /generate in the commit box.' },
+  statusBar: { label: 'Status bar', detail: 'Item in the status bar.' },
+};
+
+interface EntrypointPick extends vscode.QuickPickItem {
+  key: EntrypointKey;
+}
+
+// Пульт «все точки входа разом»: QuickPick с canPickMany (галочки).
+// Читает и пишет настройку-object commitwright.entrypoints (видимость каждой точки) целиком.
+function registerConfigureEntrypoints(context: vscode.ExtensionContext): void {
+  const disposable = vscode.commands.registerCommand('commitwright.configureEntrypoints', async () => {
+    const cfg = vscode.workspace.getConfiguration('commitwright');
+    const current = cfg.get<Partial<Record<EntrypointKey, boolean>>>('entrypoints') ?? {};
+    const items: EntrypointPick[] = ENTRYPOINT_KEYS.map((key) => ({
+      label: ENTRYPOINT_LABELS[key].label,
+      detail: ENTRYPOINT_LABELS[key].detail,
+      key,
+      picked: current[key] ?? true,
+    }));
+    const selection = await vscode.window.showQuickPick(items, {
+      canPickMany: true,
+      title: t('CommitWright: Configure Entry Points'),
+      placeHolder: t('Check where the generate action should appear'),
+    });
+    if (!selection) {
+      return; // отменили (Esc)
+    }
+    const enabled = new Set(selection.map((s) => s.key));
+    const next = {} as Record<EntrypointKey, boolean>;
+    for (const key of ENTRYPOINT_KEYS) {
+      next[key] = enabled.has(key);
+    }
+    await cfg.update('entrypoints', next, vscode.ConfigurationTarget.Global);
+    vscode.window.showInformationMessage(t('CommitWright: entry points updated.'));
+  });
+  context.subscriptions.push(disposable);
+}
+
 export function registerCommands(context: vscode.ExtensionContext): void {
   registerSelectLanguage(context);
   registerSelectModel(context);
+  registerConfigureEntrypoints(context);
 }
