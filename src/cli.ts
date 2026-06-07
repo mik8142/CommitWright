@@ -76,7 +76,11 @@ function resolveExecutable(command: string): string | null {
   const exts = isWin
     ? (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
     : [''];
-  const withExts = (base: string): string[] => [base, ...exts.map((e) => base + e)];
+  // На Windows расширения идут ПЕРЕД голым именем: рядом с `claude.cmd` часто лежит Unix-shim
+  // `claude` (без расширения) — он существует как файл, но spawn без shell его не запустит (ENOENT).
+  // Голое имя оставляем последним fallback'ом (на случай, когда путь уже задан с расширением).
+  const withExts = (base: string): string[] =>
+    isWin ? [...exts.map((e) => base + e), base] : [base];
 
   // Путь с разделителем/абсолютный — проверяем как есть; иначе ищем по каждому каталогу PATH.
   if (path.isAbsolute(command) || command.includes('/') || command.includes('\\')) {
@@ -92,28 +96,62 @@ function resolveExecutable(command: string): string | null {
   return null;
 }
 
+// Метасимволы оболочки, опасные в неэкранированной shell-команде (используется в Windows
+// .cmd-ветке ниже, где Node аргументы не экранирует).
+const SHELL_UNSAFE = /[&|;<>()^"'`$%\s]/;
+
+// В shell-ветке (.cmd/.bat на Windows) аргументы не экранируются Node — отвергаем те, что содержат
+// метасимволы оболочки. Защищает узкий неустранимый угол: свободные значения из настроек (model,
+// путь) не должны уйти в shell неэкранированными. Для .exe/Unix shell не используется вовсе.
+function assertShellSafeArgs(args: readonly string[]): void {
+  for (const arg of args) {
+    if (SHELL_UNSAFE.test(arg)) {
+      throw new CommitWrightError(
+        'unknown',
+        `Refusing to run: an argument contains shell metacharacters (${arg}). Check the "model" setting.`,
+      );
+    }
+  }
+}
+
 // Запуск CLI: промпт -> stdin, сбор stdout, таймаут, классификация ошибок.
-// Windows: бинарь может быть .exe/.cmd, поэтому shell:true (иначе .cmd не запустится);
-// аргументы фиксированы нами (не пользовательский ввод в shell) — инъекции нет.
+// Безопасность: для .exe/Unix запускаем БЕЗ shell — аргументы идут как argv, оболочка их не парсит,
+// инъекция структурно невозможна. Windows .cmd/.bat без shell Node не запускает (BatBadBut), для них
+// shell неизбежен: путь к скрипту берём в кавычки сами (иначе пробелы ломают разбор; shell:true даёт
+// `cmd /d /s /c "…"`, и /s снимает только внешние кавычки — наши вокруг пути выживают), а свободные
+// аргументы валидируем (assertShellSafeArgs) — в shell они не экранируются. .exe/Unix — напрямую.
 export function runCli(
   invocation: CliInvocation,
   prompt: string,
   timeoutMs: number,
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    // Префлайт: бинарь не найден -> чистая категория, без запуска шелла (см. resolveExecutable).
-    if (!resolveExecutable(invocation.command)) {
+    // Префлайт: резолвим команду в реальный файл. Не найден -> чистая категория, без запуска shell.
+    const resolved = resolveExecutable(invocation.command);
+    if (!resolved) {
       reject(
         new CommitWrightError('cli-not-found', `Executable not found: ${invocation.command}`),
       );
       return;
     }
 
-    const child = spawn(invocation.command, invocation.args, {
+    // Windows .cmd/.bat запускаются только через shell. Путь берём в кавычки сами (пробелы), а
+    // свободные аргументы валидируем — в shell они не экранируются.
+    const isWinScript = process.platform === 'win32' && /\.(cmd|bat)$/i.test(resolved);
+    if (isWinScript) {
+      try {
+        assertShellSafeArgs(invocation.args);
+      } catch (err) {
+        reject(err);
+        return;
+      }
+    }
+
+    const child = spawn(isWinScript ? `"${resolved}"` : resolved, invocation.args, {
       cwd: os.tmpdir(), // нейтральный cwd: не подхватывать CLAUDE.md репозитория
       env: invocation.env ?? process.env,
       windowsHide: true,
-      shell: process.platform === 'win32',
+      shell: isWinScript, // .cmd/.bat — только через shell; путь заквочен, аргументы валидированы
     });
 
     const stdoutChunks: Buffer[] = [];
