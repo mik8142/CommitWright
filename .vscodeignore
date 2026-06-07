@@ -2,6 +2,7 @@
 
 .vscode/**
 .vscode-test/**
+out/**
 .git/**
 .gitignore
 .gitattributes

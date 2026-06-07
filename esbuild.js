@@ -3,9 +3,12 @@
 // `--production` (минификация без source map — для упаковки .vsix).
 
 const esbuild = require('esbuild');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
+const test = process.argv.includes('--test');
 
 // Плагин-«мостик» к панели Problems: печатает маркеры начала/конца сборки и
 // ошибки в формате file:line:column. Их разбирает problemMatcher из .vscode/tasks.json,
@@ -29,7 +32,9 @@ const problemMatcherPlugin = {
   },
 };
 
-async function main() {
+// Сборка расширения: src/extension.ts -> dist/extension.js. 'vscode' остаётся external
+// (его даёт сам редактор в рантайме).
+async function buildExtension() {
   const ctx = await esbuild.context({
     entryPoints: ['src/extension.ts'],
     bundle: true,
@@ -53,6 +58,34 @@ async function main() {
     await ctx.rebuild();
     await ctx.dispose();
   }
+}
+
+// Сборка unit-тестов: src/test/*.test.ts -> out/test/*.test.js для запуска `node --test`.
+// Ключевое отличие от сборки расширения: 'vscode' НЕ external, а подменяется лёгким стабом
+// (alias) — в обычном Node-процессе модуля 'vscode' нет, его даёт только Extension Host.
+// Так чистые функции (buildInvocation, truncateDiff, resolveLanguage, buildPrompt,
+// classifyExit) тестируются без поднятия редактора. sourcemap inline -> стектрейсы на .ts.
+async function buildTests() {
+  const dir = 'src/test';
+  const entryPoints = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.test.ts'))
+    .map((f) => path.join(dir, f));
+  await esbuild.build({
+    entryPoints,
+    bundle: true,
+    format: 'cjs',
+    platform: 'node',
+    target: 'node20',
+    sourcemap: 'inline',
+    sourcesContent: false,
+    outdir: 'out/test',
+    alias: { vscode: path.resolve(__dirname, 'src/test/vscode-stub.ts') },
+  });
+}
+
+async function main() {
+  await (test ? buildTests() : buildExtension());
 }
 
 main().catch((e) => {

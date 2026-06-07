@@ -302,7 +302,9 @@
     "watch:tsc": "tsc --noEmit --watch",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production"
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "node esbuild.js --test",
+    "test": "npm run check-types && npm run compile-tests && node --enable-source-maps --test \"out/test/**/*.test.js\""
   },
   "devDependencies": {
     "@types/node": "^20.19.41",
