@@ -12,6 +12,7 @@ contexts/
 *.local.json
 
 # --- OS / editor cruft ---
+.vscode/
 .DS_Store
 Thumbs.db
 *.log
