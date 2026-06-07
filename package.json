@@ -70,6 +70,14 @@
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "commitwright.generate",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g",
+        "when": "scmProvider == git || editorLangId == git-commit"
+      }
+    ],
     "configuration": {
       "title": "CommitWright",
       "properties": {
