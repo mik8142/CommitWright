@@ -38,6 +38,9 @@ export function registerEntrypoints(context: vscode.ExtensionContext): void {
 
   // Status bar — программная точка входа (не манифест).
   registerStatusBar(context);
+
+  // Slash-триггер «/generate» в поле сообщения — программная точка входа.
+  registerSlashTrigger(context);
 }
 
 // Держим context-key commitwright.hasStaged актуальным: true, когда в репозитории есть
@@ -75,7 +78,7 @@ function registerStatusBar(context: vscode.ExtensionContext): void {
   const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   item.command = 'commitwright.generate';
   item.text = '$(chat-sparkle) CommitWright';
-  item.tooltip = t('Generate commit message');
+  item.tooltip = t('Generate commit message with CommitWright');
   context.subscriptions.push(item);
 
   const apply = (): void => {
@@ -92,6 +95,35 @@ function registerStatusBar(context: vscode.ExtensionContext): void {
         apply();
       }
     }),
+  );
+}
+
+// Slash-триггер — программная точка входа: автодополнение в поле commit-сообщения (язык scminput).
+// Печать «/generate» предлагает пункт, выбор которого убирает напечатанный триггер и запускает
+// команду генерации. Видимость читаем в момент вызова (getEntrypoints().slashTrigger) — галочка
+// действует реактивно без перерегистрации провайдера.
+function registerSlashTrigger(context: vscode.ExtensionContext): void {
+  const provider: vscode.CompletionItemProvider = {
+    provideCompletionItems(document, position) {
+      if (!getEntrypoints().slashTrigger) {
+        return [];
+      }
+      const prefix = document.lineAt(position).text.slice(0, position.character);
+      const slash = prefix.lastIndexOf('/');
+      if (slash < 0) {
+        return [];
+      }
+      const item = new vscode.CompletionItem('/generate', vscode.CompletionItemKind.Event);
+      item.detail = t('Generate commit message with CommitWright');
+      // Текст не вставляем: заменяем напечатанный «/…» на пустоту, затем команда запускает генерацию.
+      item.insertText = '';
+      item.range = new vscode.Range(position.line, slash, position.line, position.character);
+      item.command = { command: 'commitwright.generate', title: t('Generate Commit Message') };
+      return [item];
+    },
+  };
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider('scminput', provider, '/'),
   );
 }
 
