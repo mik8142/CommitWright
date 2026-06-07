@@ -35,6 +35,9 @@ export function registerEntrypoints(context: vscode.ExtensionContext): void {
 
   // Отслеживаем наличие staged-изменений (для context-key commitwright.hasStaged).
   trackStagedContext(context);
+
+  // Status bar — программная точка входа (не манифест).
+  registerStatusBar(context);
 }
 
 // Держим context-key commitwright.hasStaged актуальным: true, когда в репозитории есть
@@ -61,6 +64,33 @@ function trackStagedContext(context: vscode.ExtensionContext): void {
     api.onDidOpenRepository((repo) => {
       hook(repo);
       apply();
+    }),
+  );
+}
+
+// Status bar — программная точка входа: элемент слева с командой генерации. Видимость по настройке
+// entrypoints.statusBar (показ/скрытие на лету). В отличие от тулбар-точек, это не when/context-key,
+// а прямой show()/hide() самого элемента.
+function registerStatusBar(context: vscode.ExtensionContext): void {
+  const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+  item.command = 'commitwright.generate';
+  item.text = '$(chat-sparkle) CommitWright';
+  item.tooltip = t('Generate commit message');
+  context.subscriptions.push(item);
+
+  const apply = (): void => {
+    if (getEntrypoints().statusBar) {
+      item.show();
+    } else {
+      item.hide();
+    }
+  };
+  apply();
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('commitwright.entrypoints')) {
+        apply();
+      }
     }),
   );
 }
