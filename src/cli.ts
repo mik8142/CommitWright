@@ -221,7 +221,7 @@ function decodeOutput(buf: Buffer): string {
 // диагностику то в stderr, то в stdout — поэтому смотрим оба потока: и для матчинга категории,
 // и для текста в тосте (принцип «никаких молчаливых ошибок»). Сигнатуры эвристические;
 // auth/limit уточняем по живому выводу.
-function classifyExit(code: number | null, stdout: string, stderr: string): CommitWrightError {
+export function classifyExit(code: number | null, stdout: string, stderr: string): CommitWrightError {
   const diagnostic = [stderr, stdout]
     .map((s) => s.trim())
     .filter(Boolean)
