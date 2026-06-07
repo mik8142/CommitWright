@@ -73,7 +73,7 @@
         {
           "command": "commitwright.generate",
           "group": "navigation",
-          "when": "resourceLangId == git-commit && commitwright.show.editorButton"
+          "when": "resourceFilename == COMMIT_EDITMSG && commitwright.show.editorButton"
         }
       ],
       "scm/resourceGroup/context": [
@@ -160,9 +160,9 @@
             "Extra high.",
             "Maximum — deepest reasoning, slowest."
           ],
-          "default": "high",
+          "default": "low",
           "order": 11,
-          "markdownDescription": "Thinking effort passed to the CLI (`--effort`). Defaults to `high`. Lower it to `low` to speed up commit-message generation, or pick the empty option to use the model's own default effort."
+          "markdownDescription": "Thinking effort passed to the CLI (`--effort`). Defaults to `low` — writing a commit message is not a reasoning task, so higher effort mainly slows it down and burns tokens. Raise it if you want, or pick the empty option to use the model's own default effort."
         },
         "commitwright.timeoutMs": {
           "type": "number",
@@ -265,7 +265,7 @@
             "Pin the button to the left edge of the Source Control title actions.",
             "Pin the button to the right edge, just before the '...' overflow menu."
           ],
-          "default": "left",
+          "default": "right",
           "order": 40,
           "description": "Where to place the CommitWright button among the built-in Source Control title actions."
         },
@@ -285,7 +285,7 @@
             "scmTitle": true,
             "editorButton": true,
             "changesInline": true,
-            "panel": true,
+            "panel": false,
             "slashTrigger": true,
             "statusBar": true
           },
