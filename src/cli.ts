@@ -149,7 +149,10 @@ export function runCli(
 
     const child = spawn(isWinScript ? `"${resolved}"` : resolved, invocation.args, {
       cwd: os.tmpdir(), // нейтральный cwd: не подхватывать CLAUDE.md репозитория
-      env: invocation.env ?? process.env,
+      // Гасим CLAUDECODE: запуск ИЗ активной Claude-сессии (VS Code/терминал) пробрасывает
+      // CLAUDECODE=1, и дочерний `claude` отказывает — «cannot be launched inside another Claude
+      // Code session». Пустая строка = falsy, проверка CLI не срабатывает. Та же изоляция, что cwd.
+      env: { ...(invocation.env ?? process.env), CLAUDECODE: '' },
       windowsHide: true,
       shell: isWinScript, // .cmd/.bat — только через shell; путь заквочен, аргументы валидированы
     });
