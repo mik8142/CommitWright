@@ -171,12 +171,14 @@ literal imperative if that is unnatural in ${lang}.
 
 // Verbatim-примеры коммита на целевом языке (plain-стиль) — сильнейший few-shot рычаг.
 // Берём из ресёрча; для языков без примера блок просто опускается (не выдумываем).
+// Формы — нативные для каждого языка (не инфинитив-калька английского императива): ru — страд.
+// причастие; de/es — 3-е л. наст.; fr — номинатив; ja — 体言止め (действие-существительное в конце).
 const LANGUAGE_EXAMPLES: Record<string, string> = {
   Russian: 'Добавлен rate limiter (token bucket) для публичного API',
-  German: 'Rate-Limiter (Token-Bucket) für die öffentliche API hinzufügen',
+  German: 'Fügt einen Rate-Limiter (Token-Bucket) für die öffentliche API hinzu',
   Japanese: '公開APIにレートリミッター（トークンバケット）を追加',
-  French: "Ajouter un limiteur de débit (token bucket) pour l'API publique",
-  Spanish: 'Añadir un limitador de tasa (token bucket) para la API pública',
+  French: "Ajout d'un limiteur de débit (token bucket) pour l'API publique",
+  Spanish: 'Añade un limitador de tasa (token bucket) para la API pública',
 };
 
 function filesBlock(files: readonly string[]): string {
