@@ -170,17 +170,28 @@ literal imperative if that is unnatural in ${lang}.
 }
 
 // Verbatim-примеры коммита на целевом языке (plain-стиль) — сильнейший few-shot рычаг.
-// Берём из ресёрча; для языков без примера блок просто опускается (не выдумываем).
-// Формы — нативные для каждого языка (не инфинитив-калька английского императива): ru — страд.
-// причастие; de/es/pt — 3-е л. наст.; fr — номинатив; it — причастие прош.; ja — 体言止め (действие в конце).
+// Берём из ресёрча (ko/tr/zh — выверены носителем); для языков без примера блок опускается (не выдумываем).
+// Формы — нативные для каждого языка (не инфинитив-калька английского императива): ru — страд. причастие;
+// de/es/pt — 3-е л. наст.; fr — номинатив; it — причастие прош.; ja — 体言止め (действие в конце);
+// ko/tr — SOV, действие в конце (추가 / eklendi); zh — глагол в начале (添加). Жаргон (rate limiter,
+// token bucket) держим английским везде, КРОМЕ китайского (限流器/令牌桶 — доминирующие нативные термины).
 const LANGUAGE_EXAMPLES: Record<string, string> = {
   Russian: 'Добавлен rate limiter (token bucket) для публичного API',
   German: 'Fügt einen Rate-Limiter (Token-Bucket) für die öffentliche API hinzu',
   Japanese: '公開APIにレートリミッター（トークンバケット）を追加',
-  French: "Ajout d'un limiteur de débit (token bucket) pour l'API publique",
-  Spanish: 'Añade un limitador de tasa (token bucket) para la API pública',
+  French: "Ajout d'un rate limiter (token bucket) pour l'API publique",
+  Spanish: 'Añade un rate limiter (token bucket) para la API pública',
   Italian: "Aggiunto un rate limiter (token bucket) per l'API pubblica",
   Portuguese: 'Adiciona um rate limiter (token bucket) para a API pública',
+  Korean: '공개 API에 rate limiter(token bucket) 추가',
+  Turkish: "Herkese açık API'ye rate limiter (token bucket) eklendi",
+  // Голый «Chinese» (локаль zh без региона) даём упрощённым — «китайский» без уточнения в дикой
+  // природе почти всегда Simplified. Hant отличается от Hans ровно одним глифом (为→為); глагол 添加
+  // одинаков в обоих письменах, и эмпирики для традиционно-специфичного глагола нет, поэтому держим
+  // его же. Авто-конверсию письма НЕ тащим: упрощ.→трад. не биекция (один знак → несколько) + зависимость.
+  Chinese: '为公共 API 添加限流器（令牌桶）',
+  'Chinese (Simplified)': '为公共 API 添加限流器（令牌桶）',
+  'Chinese (Traditional)': '為公共 API 添加限流器（令牌桶）',
 };
 
 function filesBlock(files: readonly string[]): string {

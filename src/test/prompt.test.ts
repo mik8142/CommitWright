@@ -128,6 +128,24 @@ describe('buildPrompt — дефолтный шаблон', () => {
     assert.ok(out.includes('Write the entire commit message in Klingon'), 'language-блок есть');
     assert.ok(!out.includes('<language_example>'), 'блока примера нет (пример не выдумываем)');
   });
+
+  test('новые языки ko/tr дают few-shot пример (SOV, действие в конце)', () => {
+    const ko = buildPrompt(makeConfig({ commitLanguage: 'Korean' }), 'D');
+    assert.ok(ko.includes('추가'), 'корейский: действие 추가 в конце');
+    const tr = buildPrompt(makeConfig({ commitLanguage: 'Turkish' }), 'D');
+    assert.ok(tr.includes('eklendi'), 'турецкий: SOV-хвост eklendi');
+  });
+
+  test('китайские ключи матчатся точно; Traditional отличается глифом (为/為)', () => {
+    // Ключи с региональным суффиксом должны 1:1 совпадать с выводом resolveLanguage,
+    // иначе few-shot молча пропадёт. Голый Chinese даём упрощённым.
+    const hans = buildPrompt(makeConfig({ commitLanguage: 'Chinese (Simplified)' }), 'D');
+    assert.ok(hans.includes('为公共 API 添加限流器'), 'упрощённый: 为');
+    const hant = buildPrompt(makeConfig({ commitLanguage: 'Chinese (Traditional)' }), 'D');
+    assert.ok(hant.includes('為公共 API 添加限流器'), 'традиционный: 為');
+    const bare = buildPrompt(makeConfig({ commitLanguage: 'Chinese' }), 'D');
+    assert.ok(bare.includes('为公共 API 添加限流器'), 'голый Chinese = упрощённый');
+  });
 });
 
 describe('buildPrompt — авто-локаль из vscode.env.language', () => {
