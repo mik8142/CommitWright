@@ -2,7 +2,7 @@
   "name": "commitwright",
   "displayName": "CommitWright — AI Commit Messages (Claude CLI)",
   "description": "Generate AI commit messages from your staged diff with the official Claude CLI — your existing subscription, no API key, no telemetry. Conventional Commits & more styles, any language.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "mik8142",
   "author": {
     "name": "mik8142"
