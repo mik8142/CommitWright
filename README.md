@@ -1,6 +1,6 @@
 🇺🇸 **English** | [🇷🇺 Русский](README.ru.md)
 
-<p align="center"><img src="media/hero-banner@1280.png" alt="CommitWright — commit messages from your staged diff"/></p>
+<p align="center"><img src="media/hero-banner.png" alt="CommitWright — commit messages from your staged diff"/></p>
 
 # CommitWright — AI Commit Messages (Claude CLI)
 

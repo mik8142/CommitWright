@@ -1,6 +1,6 @@
 [🇺🇸 English](README.md) | 🇷🇺 **Русский**
 
-<p align="center"><img src="media/hero-banner@1280.png" alt="CommitWright — commit-сообщения из вашего staged-диффа"/></p>
+<p align="center"><img src="media/hero-banner.png" alt="CommitWright — commit-сообщения из вашего staged-диффа"/></p>
 
 # CommitWright — AI-генератор commit-сообщений (Claude CLI)
 
