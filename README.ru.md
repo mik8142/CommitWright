@@ -1,12 +1,12 @@
 [🇺🇸 English](README.md) | 🇷🇺 **Русский**
 
-![CommitWright — commit-сообщения из вашего staged-диффа](media/hero-banner@1280.png)
+<p align="center"><img src="media/hero-banner@1280.png" alt="CommitWright — commit-сообщения из вашего staged-диффа"/></p>
 
 # CommitWright — AI-генератор commit-сообщений (Claude CLI)
 
 **Commit-сообщения из вашего staged-диффа.** Кнопка ✨ в панели Source Control: черновик commit-сообщения пишет Claude CLI, который у вас уже установлен, — на вашей существующей подписке, без отдельного API-ключа.
 
-![CommitWright генерирует commit-сообщение из проиндексированных изменений](media/hero.gif)
+<p align="center"><img src="media/hero.gif" alt="CommitWright генерирует commit-сообщение из проиндексированных изменений"/></p>
 
 Проиндексируйте изменения, нажмите ✨, просмотрите черновик, закоммитьте. Сообщение попадает в поле коммита обычным текстом — последнее слово всегда за вами.
 
@@ -27,7 +27,7 @@
 
 ## Как это работает
 
-![Схема: VS Code передаёт staged-дифф в CommitWright, тот запускает локальный CLI claude; промпт обрабатывается Claude API по условиям вашего тарифа, и черновик сообщения возвращается в поле коммита](media/diagram-ru.png)
+<p align="center"><img src="media/diagram-ru.png" alt="Схема: VS Code передаёт staged-дифф в CommitWright, тот запускает локальный CLI claude; промпт обрабатывается Claude API по условиям вашего тарифа, и черновик сообщения возвращается в поле коммита"/></p>
 
 CommitWright запускает официальный CLI Anthropic (`claude`), который вы устанавливаете и авторизуете сами. По нажатию он собирает дифф, передаёт его в `claude -p` вместе с промптом и вставляет ответ в поле commit-сообщения. Расширение не хранит, не извлекает и не передаёт ваш токен — вся аутентификация остаётся внутри официального бинарника.
 
@@ -39,7 +39,7 @@ CommitWright запускает официальный CLI Anthropic (`claude`),
 
 ## Точки входа
 
-![Карта точек входа CommitWright в окне VS Code: кнопка в заголовке, инлайн-действие, панель, строка состояния](media/entry-map-ru.png)
+<p align="center"><img src="media/entry-map-ru.png" alt="Карта точек входа CommitWright в окне VS Code: кнопка в заголовке, инлайн-действие, панель, строка состояния"/></p>
 
 | # | Точка входа | По умолчанию |
 |---|-------------|--------------|
@@ -57,13 +57,13 @@ CommitWright запускает официальный CLI Anthropic (`claude`),
 
 Введите `/` первым символом в поле коммита, чтобы сгенерировать сообщение с разовым отступлением от ваших настроек: `/conventional` напишет это сообщение в стиле Conventional, `/body` добавит тело, `/lang` выберет язык:
 
-![Слэш-меню в поле коммита: /generate, /plain, /scoped, /conventional, /brackets, /subject, /body, /lang](media/slash.png)
+<p align="center"><img src="media/slash.png" alt="Слэш-меню в поле коммита: /generate, /plain, /scoped, /conventional, /brackets, /subject, /body, /lang"/></p>
 
 ### Кнопка редактора коммита
 
 Если вы коммитите через полноценный редактор (вкладка `COMMIT_EDITMSG`), та же кнопка ✨ есть и в его тулбаре:
 
-![Кнопка генерации в тулбаре редактора COMMIT_EDITMSG](media/editmsg.png)
+<p align="center"><img src="media/editmsg.png" alt="Кнопка генерации в тулбаре редактора COMMIT_EDITMSG"/></p>
 
 ## Настройки
 

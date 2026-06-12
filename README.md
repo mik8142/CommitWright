@@ -1,12 +1,12 @@
 🇺🇸 **English** | [🇷🇺 Русский](README.ru.md)
 
-![CommitWright — commit messages from your staged diff](media/hero-banner@1280.png)
+<p align="center"><img src="media/hero-banner@1280.png" alt="CommitWright — commit messages from your staged diff"/></p>
 
 # CommitWright — AI Commit Messages (Claude CLI)
 
 **Commit messages from your staged diff.** A ✨ button in VS Code's Source Control panel drafts your commit message with the Claude CLI you already have — on your existing subscription, no separate API key.
 
-![CommitWright generating a commit message from staged changes](media/hero.gif)
+<p align="center"><img src="media/hero.gif" alt="CommitWright generating a commit message from staged changes"/></p>
 
 Stage your changes, click ✨, review the draft, commit. The message lands in the commit box as editable text — you always get the final word.
 
@@ -27,7 +27,7 @@ Stage your changes, click ✨, review the draft, commit. The message lands in th
 
 ## How it works
 
-![Diagram: VS Code hands the staged diff to CommitWright, which runs the local claude CLI; the prompt is processed by the Claude API under your plan, and the draft message comes back into the commit input box](media/diagram-en.png)
+<p align="center"><img src="media/diagram-en.png" alt="Diagram: VS Code hands the staged diff to CommitWright, which runs the local claude CLI; the prompt is processed by the Claude API under your plan, and the draft message comes back into the commit input box"/></p>
 
 CommitWright runs the official Anthropic CLI (`claude`) that you install and authorize yourself. On click it collects the diff, pipes it to `claude -p` together with a prompt, and inserts the reply into the commit message box. The extension never stores, extracts, or transmits your token — authentication stays entirely inside the official binary.
 
@@ -39,7 +39,7 @@ A few deliberate guardrails:
 
 ## Entry points
 
-![Map of CommitWright entry points in the VS Code window: title-bar button, inline action, panel, status bar](media/entry-map-en.png)
+<p align="center"><img src="media/entry-map-en.png" alt="Map of CommitWright entry points in the VS Code window: title-bar button, inline action, panel, status bar"/></p>
 
 | # | Entry point | Default |
 |---|-------------|---------|
@@ -57,13 +57,13 @@ Run **CommitWright: Configure Entry Points** for a checkbox list of all of them,
 
 Type `/` as the first character of the commit box to generate with a one-off override of your defaults — `/conventional` writes this one message in Conventional style, `/body` adds a body, `/lang` picks a language:
 
-![Slash menu in the commit input box: /generate, /plain, /scoped, /conventional, /brackets, /subject, /body, /lang](media/slash.png)
+<p align="center"><img src="media/slash.png" alt="Slash menu in the commit input box: /generate, /plain, /scoped, /conventional, /brackets, /subject, /body, /lang"/></p>
 
 ### Commit editor button
 
 If you commit with the full editor (`COMMIT_EDITMSG` tab), the same ✨ lives in its toolbar:
 
-![Generate button in the COMMIT_EDITMSG editor toolbar](media/editmsg.png)
+<p align="center"><img src="media/editmsg.png" alt="Generate button in the COMMIT_EDITMSG editor toolbar"/></p>
 
 ## Settings
 
