@@ -1,7 +1,7 @@
 {
   "name": "commitwright",
-  "displayName": "CommitWright",
-  "description": "Generate Git commit messages from your staged changes using your local Claude CLI.",
+  "displayName": "CommitWright — AI Commit Messages (Claude CLI)",
+  "description": "Generate AI commit messages from your staged diff with the official Claude CLI — your existing subscription, no API key, no telemetry. Conventional Commits & more styles, any language.",
   "version": "0.0.1",
   "publisher": "mik8142",
   "author": {
@@ -12,6 +12,10 @@
     "type": "git",
     "url": "https://github.com/mik8142/CommitWright.git"
   },
+  "bugs": {
+    "url": "https://github.com/mik8142/CommitWright/issues"
+  },
+  "homepage": "https://github.com/mik8142/CommitWright#readme",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -26,12 +30,16 @@
     "Machine Learning"
   ],
   "keywords": [
-    "git",
     "commit",
     "commit message",
+    "commit message generator",
+    "ai commit",
+    "conventional commits",
     "claude",
-    "ai",
-    "cli"
+    "claude cli",
+    "claude code",
+    "git",
+    "ai"
   ],
   "activationEvents": [
     "onStartupFinished"
