@@ -27,3 +27,6 @@ node_modules/**
 # относительные пути на raw.githubusercontent). В .vsix обязана попасть только иконка пакета.
 media/**
 !media/icon.png
+
+# Русский перевод README: витрина Marketplace рендерит только README.md, перевод читают на GitHub.
+README.ru.md
