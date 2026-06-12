@@ -35,7 +35,7 @@
   "cfg.style.enum.plain": "Plain subject (no machine prefix).",
   "cfg.style.enum.scoped": "scope: summary — a lowercase area prefix, no fixed type list.",
   "cfg.style.enum.conventional": "Conventional Commits (feat:, fix:, …) — for changelog/semver automation.",
-  "cfg.style.enum.brackets": "Bracketed tags ([FIX], [FEATURE], …).",
+  "cfg.style.enum.brackets": "Bracketed tags ([FIX], [FEATURE], …). Tags stay English regardless of the commit language.",
   "cfg.messageMode.desc": "How much of the commit message to generate.",
   "cfg.messageMode.label.subject": "Subject only",
   "cfg.messageMode.label.subjectBody": "Subject + body",

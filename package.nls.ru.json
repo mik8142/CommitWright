@@ -35,7 +35,7 @@
   "cfg.style.enum.plain": "Обычный заголовок (без машинного префикса).",
   "cfg.style.enum.scoped": "scope: summary — префикс-область строчными, без фиксированного списка типов.",
   "cfg.style.enum.conventional": "Conventional Commits (feat:, fix:, …) — для автоматизации changelog/semver.",
-  "cfg.style.enum.brackets": "Теги в квадратных скобках ([FIX], [FEATURE], …).",
+  "cfg.style.enum.brackets": "Теги в квадратных скобках ([FIX], [FEATURE], …). Теги всегда английские, независимо от языка коммита.",
   "cfg.messageMode.desc": "Какую часть commit-сообщения генерировать.",
   "cfg.messageMode.label.subject": "Только заголовок",
   "cfg.messageMode.label.subjectBody": "Заголовок + тело",

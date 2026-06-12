@@ -120,8 +120,16 @@ Write a Conventional Commits message.
   brackets: `<format>
 Write a bracketed-tag commit message.
 - Subject format: [TAG] Summary
-- TAG is one of: [FIX], [FEATURE], [REFACTOR], [DOCS], [TEST], [CHORE].
-  Choose the single tag that best matches the diff.
+- Prefer one of these tags (reuse them whenever one reasonably fits):
+  [FIX], [FEATURE], [REFACTOR], [DOCS], [TEST], [CHORE].
+  [FIX] bug fix; [FEATURE] new/changed user-facing capability;
+  [REFACTOR] behavior-preserving code change; [DOCS] documentation only;
+  [TEST] tests only; [CHORE] build, deps, CI, tooling, housekeeping.
+- Choose the single tag that best matches the diff.
+- Only if none of the listed tags reasonably fits, coin ONE new ALL-CAPS
+  single-word tag (e.g. [PERF], [SECURITY]); do this sparingly and reuse the
+  listed tags when in doubt. Tags are always English, regardless of the
+  summary language.
 - Summary: capitalized, no trailing period, never exceed 72 including the tag;
   use the subject mood/grammar set by the rules above (not necessarily a literal
   imperative).
