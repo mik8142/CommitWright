@@ -36,23 +36,23 @@
     "commands": [
       {
         "command": "commitwright.generate",
-        "title": "Generate Commit Message",
+        "title": "%cmd.generate.title%",
         "category": "CommitWright",
         "icon": "$(chat-sparkle)"
       },
       {
         "command": "commitwright.selectLanguage",
-        "title": "Select Commit Language",
+        "title": "%cmd.selectLanguage.title%",
         "category": "CommitWright"
       },
       {
         "command": "commitwright.selectModel",
-        "title": "Select Model",
+        "title": "%cmd.selectModel.title%",
         "category": "CommitWright"
       },
       {
         "command": "commitwright.configureEntrypoints",
-        "title": "Configure Entry Points",
+        "title": "%cmd.configureEntrypoints.title%",
         "category": "CommitWright"
       }
     ],
@@ -116,7 +116,7 @@
     "viewsWelcome": [
       {
         "view": "commitwright.panel",
-        "contents": "Generate a commit message from your staged or working changes.\n[Generate Commit Message](command:commitwright.generate)"
+        "contents": "%view.welcome%"
       }
     ],
     "configuration": {
@@ -126,13 +126,13 @@
           "type": "string",
           "default": "claude",
           "order": 12,
-          "description": "Path to the CLI executable. Use an absolute path if it is not on PATH (common on Windows, e.g. C:\\\\Users\\\\you\\\\...\\\\claude.exe)."
+          "description": "%cfg.cliPath.desc%"
         },
         "commitwright.model": {
           "type": "string",
           "default": "",
           "order": 10,
-          "markdownDescription": "Model passed to the CLI. [▸ Pick from list](command:commitwright.selectModel) — the easiest way to set this. You can also type an alias (`opus`, `sonnet`, `haiku`) or a full model name (e.g. `claude-opus-4-8`). Leave empty to use the CLI default."
+          "markdownDescription": "%cfg.model.desc%"
         },
         "commitwright.effort": {
           "type": "string",
@@ -145,31 +145,31 @@
             "max"
           ],
           "enumItemLabels": [
-            "Default (model's default, usually High)",
-            "Low",
-            "Medium",
-            "High",
-            "Extra high",
-            "Max"
+            "%cfg.effort.label.default%",
+            "%cfg.effort.label.low%",
+            "%cfg.effort.label.medium%",
+            "%cfg.effort.label.high%",
+            "%cfg.effort.label.xhigh%",
+            "%cfg.effort.label.max%"
           ],
           "enumDescriptions": [
-            "Use the model's default effort (High on most models; Extra high on some). Leave as is unless you want to override.",
-            "Lowest — fastest. Usually enough for short commit messages.",
-            "Medium.",
-            "High.",
-            "Extra high.",
-            "Maximum — deepest reasoning, slowest."
+            "%cfg.effort.enum.default%",
+            "%cfg.effort.enum.low%",
+            "%cfg.effort.enum.medium%",
+            "%cfg.effort.enum.high%",
+            "%cfg.effort.enum.xhigh%",
+            "%cfg.effort.enum.max%"
           ],
           "default": "low",
           "order": 11,
-          "markdownDescription": "Thinking effort passed to the CLI (`--effort`). Defaults to `low` — writing a commit message is not a reasoning task, so higher effort mainly slows it down and burns tokens. Raise it if you want, or pick the empty option to use the model's own default effort."
+          "markdownDescription": "%cfg.effort.desc%"
         },
         "commitwright.timeoutMs": {
           "type": "number",
           "default": 60000,
           "minimum": 5000,
           "order": 13,
-          "description": "Timeout for the CLI call, in milliseconds."
+          "description": "%cfg.timeoutMs.desc%"
         },
         "commitwright.diffSource": {
           "type": "string",
@@ -179,19 +179,19 @@
             "all"
           ],
           "enumDescriptions": [
-            "Smart: use staged changes if any are staged, otherwise use all changes (tracked + untracked).",
-            "Only staged changes ('git diff --cached').",
-            "All changes: tracked (staged + unstaged) plus untracked files."
+            "%cfg.diffSource.enum.auto%",
+            "%cfg.diffSource.enum.staged%",
+            "%cfg.diffSource.enum.all%"
           ],
           "default": "auto",
           "order": 20,
-          "description": "Which changes to feed to the generator."
+          "description": "%cfg.diffSource.desc%"
         },
         "commitwright.includeChangedFiles": {
           "type": "boolean",
           "default": true,
           "order": 21,
-          "description": "Include the list of changed file paths in the prompt. Helps the model understand the change scope and derive a scope/prefix from the paths."
+          "description": "%cfg.includeChangedFiles.desc%"
         },
         "commitwright.style": {
           "type": "string",
@@ -202,20 +202,20 @@
             "brackets"
           ],
           "enumItemLabels": [
-            "Plain",
-            "Scoped",
-            "Conventional Commits",
-            "Bracketed tags"
+            "%cfg.style.label.plain%",
+            "%cfg.style.label.scoped%",
+            "%cfg.style.label.conventional%",
+            "%cfg.style.label.brackets%"
           ],
           "enumDescriptions": [
-            "Plain subject (no machine prefix).",
-            "scope: summary — a lowercase area prefix, no fixed type list.",
-            "Conventional Commits (feat:, fix:, …) — for changelog/semver automation.",
-            "Bracketed tags ([FIX], [NEW FEATURE], …)."
+            "%cfg.style.enum.plain%",
+            "%cfg.style.enum.scoped%",
+            "%cfg.style.enum.conventional%",
+            "%cfg.style.enum.brackets%"
           ],
           "default": "plain",
           "order": 30,
-          "description": "Commit message style."
+          "description": "%cfg.style.desc%"
         },
         "commitwright.messageMode": {
           "type": "string",
@@ -224,36 +224,36 @@
             "subjectBody"
           ],
           "enumItemLabels": [
-            "Subject only",
-            "Subject + body"
+            "%cfg.messageMode.label.subject%",
+            "%cfg.messageMode.label.subjectBody%"
           ],
           "enumDescriptions": [
-            "Generate just the subject line.",
-            "Generate a subject line plus an explanatory body."
+            "%cfg.messageMode.enum.subject%",
+            "%cfg.messageMode.enum.subjectBody%"
           ],
           "default": "subject",
           "order": 31,
-          "description": "How much of the commit message to generate."
+          "description": "%cfg.messageMode.desc%"
         },
         "commitwright.commitLanguage": {
           "type": "string",
           "default": "auto",
           "order": 32,
-          "markdownDescription": "Language of the generated commit message. [▸ Pick from list](command:commitwright.selectLanguage) — the easiest way to set this. You can also type any language name here (e.g. `Russian`, `German`, or even `Elvish`). Use `auto` — or leave this empty — to follow the VS Code display language."
+          "markdownDescription": "%cfg.commitLanguage.desc%"
         },
         "commitwright.extraInstructions": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
           "order": 33,
-          "description": "Extra free-form rules added to the prompt (fills the {$extra} placeholder)."
+          "description": "%cfg.extraInstructions.desc%"
         },
         "commitwright.promptTemplate": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
           "order": 34,
-          "markdownDescription": "Custom prompt template that fully replaces the built-in one. Leave empty to use the default. Placeholders: `{$diff}`, `{$lang}`, `{$style}`, `{$tags}`, `{$extra}`, `{$files}`. If `{$diff}` is omitted, the diff is appended automatically."
+          "markdownDescription": "%cfg.promptTemplate.desc%"
         },
         "commitwright.position.scmTitle": {
           "type": "string",
@@ -262,24 +262,24 @@
             "right"
           ],
           "enumDescriptions": [
-            "Pin the button to the left edge of the Source Control title actions.",
-            "Pin the button to the right edge, just before the '...' overflow menu."
+            "%cfg.position.scmTitle.enum.left%",
+            "%cfg.position.scmTitle.enum.right%"
           ],
           "default": "right",
           "order": 40,
-          "description": "Where to place the CommitWright button among the built-in Source Control title actions."
+          "description": "%cfg.position.scmTitle.desc%"
         },
         "commitwright.entrypoints": {
           "type": "object",
           "order": 41,
           "additionalProperties": false,
           "properties": {
-            "scmTitle": { "type": "boolean", "description": "Source Control title bar button." },
-            "editorButton": { "type": "boolean", "description": "Commit editor toolbar button (while editing COMMIT_EDITMSG)." },
-            "changesInline": { "type": "boolean", "description": "Inline action on the Changes group." },
-            "panel": { "type": "boolean", "description": "Dedicated CommitWright panel in Source Control." },
-            "slashTrigger": { "type": "boolean", "description": "Slash command ('/generate') in the commit message box." },
-            "statusBar": { "type": "boolean", "description": "Status bar item." }
+            "scmTitle": { "type": "boolean", "description": "%cfg.entrypoints.scmTitle%" },
+            "editorButton": { "type": "boolean", "description": "%cfg.entrypoints.editorButton%" },
+            "changesInline": { "type": "boolean", "description": "%cfg.entrypoints.changesInline%" },
+            "panel": { "type": "boolean", "description": "%cfg.entrypoints.panel%" },
+            "slashTrigger": { "type": "boolean", "description": "%cfg.entrypoints.slashTrigger%" },
+            "statusBar": { "type": "boolean", "description": "%cfg.entrypoints.statusBar%" }
           },
           "default": {
             "scmTitle": true,
@@ -289,7 +289,7 @@
             "slashTrigger": true,
             "statusBar": true
           },
-          "description": "Where the generate action appears. Toggle each entry point on or off."
+          "description": "%cfg.entrypoints.desc%"
         }
       }
     }
