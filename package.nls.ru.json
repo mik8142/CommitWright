@@ -3,6 +3,8 @@
   "cmd.selectLanguage.title": "Выбрать язык коммита",
   "cmd.selectModel.title": "Выбрать модель",
   "cmd.configureEntrypoints.title": "Настроить точки входа",
+  "cap.untrustedWorkspaces": "CommitWright запускает внешний CLI, путь к которому настраивается (в том числе через настройки workspace), поэтому в недоверенных workspace расширение отключено.",
+  "cap.virtualWorkspaces": "CommitWright требуются локальный Git-репозиторий и локально установленный CLI — в виртуальных workspace их нет.",
   "view.welcome": "Генерация commit-сообщения из проиндексированных или рабочих изменений.\n[Сгенерировать commit-сообщение](command:commitwright.generate)",
   "cfg.cliPath.desc": "Путь к исполняемому файлу CLI. Укажите абсолютный путь, если файла нет в PATH (частая ситуация на Windows, напр. C:\\\\Users\\\\you\\\\...\\\\claude.exe).",
   "cfg.model.desc": "Модель, передаваемая CLI. [▸ Выбрать из списка](command:commitwright.selectModel) — самый простой способ. Можно также ввести алиас (`opus`, `sonnet`, `haiku`) или полное имя модели (напр. `claude-opus-4-8`). Оставьте пустым, чтобы использовать модель CLI по умолчанию.",

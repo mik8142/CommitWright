@@ -15,9 +15,11 @@
   "engines": {
     "vscode": "^1.90.0"
   },
+  "icon": "media/icon.png",
   "categories": [
     "SCM Providers",
-    "Other"
+    "AI",
+    "Machine Learning"
   ],
   "keywords": [
     "git",
@@ -30,6 +32,16 @@
   "activationEvents": [
     "onStartupFinished"
   ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "%cap.untrustedWorkspaces%"
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "%cap.virtualWorkspaces%"
+    }
+  },
   "main": "./dist/extension.js",
   "l10n": "./l10n",
   "contributes": {
@@ -126,6 +138,9 @@
           "type": "string",
           "default": "claude",
           "order": 12,
+          "tags": [
+            "usesOnlineServices"
+          ],
           "description": "%cfg.cliPath.desc%"
         },
         "commitwright.model": {

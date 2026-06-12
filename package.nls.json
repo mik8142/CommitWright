@@ -3,6 +3,8 @@
   "cmd.selectLanguage.title": "Select Commit Language",
   "cmd.selectModel.title": "Select Model",
   "cmd.configureEntrypoints.title": "Configure Entry Points",
+  "cap.untrustedWorkspaces": "CommitWright runs an external CLI whose path is configurable (including via workspace settings), so it stays disabled in untrusted workspaces.",
+  "cap.virtualWorkspaces": "CommitWright needs a local Git repository and a locally installed CLI, which are not available in virtual workspaces.",
   "view.welcome": "Generate a commit message from your staged or working changes.\n[Generate Commit Message](command:commitwright.generate)",
   "cfg.cliPath.desc": "Path to the CLI executable. Use an absolute path if it is not on PATH (common on Windows, e.g. C:\\\\Users\\\\you\\\\...\\\\claude.exe).",
   "cfg.model.desc": "Model passed to the CLI. [▸ Pick from list](command:commitwright.selectModel) — the easiest way to set this. You can also type an alias (`opus`, `sonnet`, `haiku`) or a full model name (e.g. `claude-opus-4-8`). Leave empty to use the CLI default.",

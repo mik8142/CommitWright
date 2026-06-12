@@ -22,3 +22,8 @@ eslint.config.mjs
 
 # node_modules не нужен: всё необходимое уже внутри dist/.
 node_modules/**
+
+# Графика README в пакете не нужна — Marketplace берёт её из GitHub (vsce переписывает
+# относительные пути на raw.githubusercontent). В .vsix обязана попасть только иконка пакета.
+media/**
+!media/icon.png
