@@ -34,5 +34,13 @@
   "default": "по умолчанию",
   "plain subject": "обычный заголовок",
   "subject only": "только заголовок",
-  "subject + body": "заголовок + тело"
+  "subject + body": "заголовок + тело",
+  "Generate a commit message using your current settings.": "Сгенерировать commit-сообщение с текущими настройками.",
+  "Generate using the plain style: a bare imperative subject, no machine prefix.": "Сгенерировать в стиле plain: простой заголовок без машинного префикса.",
+  "Generate using the scoped style: an \"area: summary\" subject.": "Сгенерировать в стиле scoped: заголовок вида «область: суть».",
+  "Generate a Conventional Commits message (feat:, fix:, …).": "Сгенерировать сообщение в формате Conventional Commits (feat:, fix:, …).",
+  "Generate using bracketed tags ([FIX], [FEATURE], …).": "Сгенерировать с тегами в квадратных скобках ([FIX], [FEATURE], …).",
+  "Generate just the subject line.": "Сгенерировать только строку заголовка.",
+  "Generate a subject line plus an explanatory body.": "Сгенерировать заголовок и поясняющее тело.",
+  "Pick a language for this message, then generate.": "Выбрать язык для этого сообщения и сгенерировать."
 }

@@ -109,15 +109,51 @@ function registerStatusBar(context: vscode.ExtensionContext): void {
 const SLASH_PRESETS: ReadonlyArray<{
   cmd: string;
   detail: string;
+  doc: string;
   override: Partial<CommitWrightConfig>;
 }> = [
-  { cmd: '/generate', detail: t('default'), override: {} },
-  { cmd: '/plain', detail: t('plain subject'), override: { style: 'plain' } },
-  { cmd: '/scoped', detail: 'scope: summary', override: { style: 'scoped' } },
-  { cmd: '/conventional', detail: 'feat / fix(…)', override: { style: 'conventional' } },
-  { cmd: '/brackets', detail: '[FIX] …', override: { style: 'brackets' } },
-  { cmd: '/subject', detail: t('subject only'), override: { messageMode: 'subject' } },
-  { cmd: '/body', detail: t('subject + body'), override: { messageMode: 'subjectBody' } },
+  {
+    cmd: '/generate',
+    detail: t('default'),
+    doc: t('Generate a commit message using your current settings.'),
+    override: {},
+  },
+  {
+    cmd: '/plain',
+    detail: t('plain subject'),
+    doc: t('Generate using the plain style: a bare imperative subject, no machine prefix.'),
+    override: { style: 'plain' },
+  },
+  {
+    cmd: '/scoped',
+    detail: 'scope: summary',
+    doc: t('Generate using the scoped style: an "area: summary" subject.'),
+    override: { style: 'scoped' },
+  },
+  {
+    cmd: '/conventional',
+    detail: 'feat / fix(…)',
+    doc: t('Generate a Conventional Commits message (feat:, fix:, …).'),
+    override: { style: 'conventional' },
+  },
+  {
+    cmd: '/brackets',
+    detail: '[FIX] …',
+    doc: t('Generate using bracketed tags ([FIX], [FEATURE], …).'),
+    override: { style: 'brackets' },
+  },
+  {
+    cmd: '/subject',
+    detail: t('subject only'),
+    doc: t('Generate just the subject line.'),
+    override: { messageMode: 'subject' },
+  },
+  {
+    cmd: '/body',
+    detail: t('subject + body'),
+    doc: t('Generate a subject line plus an explanatory body.'),
+    override: { messageMode: 'subjectBody' },
+  },
 ];
 
 function registerSlashTrigger(context: vscode.ExtensionContext): void {
@@ -157,6 +193,7 @@ function registerSlashTrigger(context: vscode.ExtensionContext): void {
       const items = SLASH_PRESETS.map((p) => {
         const it = new vscode.CompletionItem(p.cmd, vscode.CompletionItemKind.Event);
         it.detail = p.detail;
+        it.documentation = p.doc;
         it.insertText = '';
         it.range = range;
         it.command = generateCmd(p.override);
@@ -164,6 +201,7 @@ function registerSlashTrigger(context: vscode.ExtensionContext): void {
       });
       const langItem = new vscode.CompletionItem('/lang', vscode.CompletionItemKind.Folder);
       langItem.detail = t('choose language…');
+      langItem.documentation = t('Pick a language for this message, then generate.');
       langItem.insertText = '/lang ';
       langItem.range = range;
       // Не запускаем генерацию — вставляем «/lang » и перевызываем автодополнение (второй уровень).
