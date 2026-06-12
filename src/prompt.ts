@@ -14,7 +14,7 @@ const TAGS_BY_STYLE: Record<CommitStyle, string> = {
   plain: '',
   scoped: '',
   conventional: 'feat, fix, docs, style, refactor, perf, test, build, ci, chore',
-  brackets: '[FIX], [NEW FEATURE], [REFACTOR], [DOCS], [TEST], [CHORE]',
+  brackets: '[FIX], [FEATURE], [REFACTOR], [DOCS], [TEST], [CHORE]',
 };
 
 // Карта локаль VS Code -> человекочитаемое имя языка для промпта. Неизвестную локаль
@@ -120,7 +120,7 @@ Write a Conventional Commits message.
   brackets: `<format>
 Write a bracketed-tag commit message.
 - Subject format: [TAG] Summary
-- TAG is one of: [FIX], [NEW FEATURE], [REFACTOR], [DOCS], [TEST], [CHORE].
+- TAG is one of: [FIX], [FEATURE], [REFACTOR], [DOCS], [TEST], [CHORE].
   Choose the single tag that best matches the diff.
 - Summary: capitalized, no trailing period, never exceed 72 including the tag;
   use the subject mood/grammar set by the rules above (not necessarily a literal

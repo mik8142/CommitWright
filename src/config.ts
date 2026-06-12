@@ -9,7 +9,7 @@ export type DiffSource = 'staged' | 'all' | 'auto';
 //   plain        — простой императивный subject (дефолт; покрывает большинство репо);
 //   scoped       — "scope: summary" без жёсткого энума (~44% реальных репо);
 //   conventional — Conventional Commits (feat:/fix:…; ~16%, но любим для changelog/semver);
-//   brackets     — [FIX]/[NEW FEATURE]… (нишевый, по запросу автора).
+//   brackets     — [FIX]/[FEATURE]… (нишевый, по запросу автора).
 export type CommitStyle = 'plain' | 'scoped' | 'conventional' | 'brackets';
 
 // Режим вывода: только subject или subject + тело.
