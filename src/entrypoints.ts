@@ -111,13 +111,13 @@ const SLASH_PRESETS: ReadonlyArray<{
   detail: string;
   override: Partial<CommitWrightConfig>;
 }> = [
-  { cmd: '/generate', detail: 'default', override: {} },
-  { cmd: '/plain', detail: 'plain subject', override: { style: 'plain' } },
+  { cmd: '/generate', detail: t('default'), override: {} },
+  { cmd: '/plain', detail: t('plain subject'), override: { style: 'plain' } },
   { cmd: '/scoped', detail: 'scope: summary', override: { style: 'scoped' } },
   { cmd: '/conventional', detail: 'feat / fix(…)', override: { style: 'conventional' } },
   { cmd: '/brackets', detail: '[FIX] …', override: { style: 'brackets' } },
-  { cmd: '/subject', detail: 'subject only', override: { messageMode: 'subject' } },
-  { cmd: '/body', detail: 'subject + body', override: { messageMode: 'subjectBody' } },
+  { cmd: '/subject', detail: t('subject only'), override: { messageMode: 'subject' } },
+  { cmd: '/body', detail: t('subject + body'), override: { messageMode: 'subjectBody' } },
 ];
 
 function registerSlashTrigger(context: vscode.ExtensionContext): void {

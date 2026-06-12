@@ -25,5 +25,14 @@
   "CommitWright: model set to \"{0}\".": "CommitWright: модель установлена на «{0}».",
   "use the CLI default": "использовать модель CLI по умолчанию",
   "Reload Window": "Перезагрузить окно",
-  "CommitWright: this change applies after a window reload.": "CommitWright: изменение применится после перезагрузки окна."
+  "CommitWright: this change applies after a window reload.": "CommitWright: изменение применится после перезагрузки окна.",
+  "CommitWright: Configure Entry Points": "CommitWright: настройка точек входа",
+  "Check where the generate action should appear": "Отметьте, где должно появляться действие генерации",
+  "CommitWright: entry points updated.": "CommitWright: точки входа обновлены.",
+  "Generate commit message with CommitWright": "Сгенерировать commit-сообщение с CommitWright",
+  "choose language…": "выбрать язык…",
+  "default": "по умолчанию",
+  "plain subject": "обычный заголовок",
+  "subject only": "только заголовок",
+  "subject + body": "заголовок + тело"
 }
