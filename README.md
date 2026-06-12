@@ -116,12 +116,15 @@ Set the `ANTHROPIC_API_KEY` environment variable — the CLI will use it instead
 ## FAQ
 
 **How do I hide Copilot's own "generate commit message" sparkle?**
+
 VS Code has no setting that hides just that one button (microsoft/vscode [#257770](https://github.com/microsoft/vscode/issues/257770) was closed without one). What works: disable the GitHub Copilot extension if you don't use it, or set `"chat.disableAIFeatures": true` to hide the built-in AI surfaces wholesale. Note that `"github.copilot.enable": { "scminput": false }` only stops Copilot *completions* in the commit box — the sparkle stays.
 
 **Can CommitWright put its button inside the commit input box, where Copilot's sparkle is?**
+
 Not today. That inner slot is VS Code's built-in commit-message-provider surface, and the corresponding `scm/inputBox` contribution point is still a proposed API ([#195474](https://github.com/microsoft/vscode/issues/195474)), off-limits to published extensions. That is why every AI-commit extension lives in the Source Control toolbar. If the API gets finalized, CommitWright will move in.
 
 **Generation fails with "not logged in"?**
+
 Run `claude` in any terminal and type `/login` once — CommitWright reuses that session.
 
 ---

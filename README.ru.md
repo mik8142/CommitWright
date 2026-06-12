@@ -116,12 +116,15 @@ CommitWright запускает официальный CLI Anthropic (`claude`),
 ## FAQ
 
 **Как скрыть собственную кнопку Copilot «generate commit message»?**
+
 В VS Code нет настройки, скрывающей именно эту кнопку (microsoft/vscode [#257770](https://github.com/microsoft/vscode/issues/257770) закрыт без неё). Что работает: отключите расширение GitHub Copilot, если им не пользуетесь, или задайте `"chat.disableAIFeatures": true`, чтобы скрыть встроенные AI-поверхности целиком. Учтите: `"github.copilot.enable": { "scminput": false }` отключает только *автодополнения* Copilot в поле коммита — кнопка остаётся.
 
 **Может ли CommitWright поставить свою кнопку внутрь поля коммита, на место кнопки Copilot?**
+
 Пока нет. Этот слот — встроенная поверхность VS Code для провайдеров commit-сообщений, а соответствующая точка вклада `scm/inputBox` — всё ещё proposed API ([#195474](https://github.com/microsoft/vscode/issues/195474)), недоступный опубликованным расширениям. Поэтому все AI-commit-расширения живут в тулбаре Source Control. Если API финализируют — CommitWright переедет.
 
 **Генерация падает с «not logged in»?**
+
 Запустите `claude` в любом терминале и один раз выполните `/login` — CommitWright использует ту же сессию.
 
 ---
