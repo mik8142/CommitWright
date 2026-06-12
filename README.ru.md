@@ -1,6 +1,8 @@
 [🇺🇸 English](README.md) | 🇷🇺 **Русский**
 
-# CommitWright
+![CommitWright — commit-сообщения из вашего staged-диффа](media/hero-banner@1280.png)
+
+# CommitWright — AI-генератор commit-сообщений (Claude CLI)
 
 **Commit-сообщения из вашего staged-диффа.** Кнопка ✨ в панели Source Control: черновик commit-сообщения пишет Claude CLI, который у вас уже установлен, — на вашей существующей подписке, без отдельного API-ключа.
 

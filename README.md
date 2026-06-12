@@ -1,6 +1,8 @@
 🇺🇸 **English** | [🇷🇺 Русский](README.ru.md)
 
-# CommitWright
+![CommitWright — commit messages from your staged diff](media/hero-banner@1280.png)
+
+# CommitWright — AI Commit Messages (Claude CLI)
 
 **Commit messages from your staged diff.** A ✨ button in VS Code's Source Control panel drafts your commit message with the Claude CLI you already have — on your existing subscription, no separate API key.
 
