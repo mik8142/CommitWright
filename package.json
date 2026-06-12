@@ -16,6 +16,10 @@
     "vscode": "^1.90.0"
   },
   "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#13314F",
+    "theme": "dark"
+  },
   "categories": [
     "SCM Providers",
     "AI",
